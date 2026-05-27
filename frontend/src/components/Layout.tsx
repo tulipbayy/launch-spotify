@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import {
   AppShell,
@@ -9,8 +10,10 @@ import {
   Avatar,
   Text,
   Box,
+  Button,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { auth, type SelfUser } from '../lib/api'
 import './Layout.css'
 
 const TOP_BAR_COLOR = '#011A27'
@@ -29,7 +32,13 @@ const navItems = [
 
 export default function Layout() {
   const [opened, { open, close }] = useDisclosure(false)
+  const [user, setUser] = useState<SelfUser | null>(null)
   const location = useLocation()
+
+  // Hydrate auth state on mount (returns null if not logged in).
+  useEffect(() => {
+    auth.me().then(setUser).catch(() => setUser(null))
+  }, [])
 
   return (
     <AppShell header={{ height: 60 }} padding="md">
@@ -44,10 +53,27 @@ export default function Layout() {
           </Title>
 
           <Group style={{ flex: 1 }} justify="flex-end" gap="sm" wrap="nowrap">
-            <Text c="white" size="sm" visibleFrom="xs">
-              username
-            </Text>
-            <Avatar radius="xl" size={32} />
+            {user ? (
+              <>
+                <Text c="white" size="sm" visibleFrom="xs">
+                  {user.profile?.displayName || user.spotifyProfile?.displayName}
+                </Text>
+                <Avatar src={user.spotifyProfile?.imageUrl || undefined} radius="xl" size={32} />
+                <Button
+                  variant="subtle"
+                  color="gray"
+                  c="white"
+                  size="compact-sm"
+                  onClick={() => auth.logout().then(() => setUser(null))}
+                >
+                  Log out
+                </Button>
+              </>
+            ) : (
+              <Button variant="white" color="dark" onClick={() => auth.login()}>
+                Sign in with Spotify
+              </Button>
+            )}
           </Group>
         </Group>
       </AppShell.Header>
