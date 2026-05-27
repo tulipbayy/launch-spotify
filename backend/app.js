@@ -1,26 +1,3 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const adminDb = require("./firebaseAdmin");
-const {
-  collection,
-  getDocs,
-  addDoc,
-  query,
-  where,
-  orderBy,
-  doc,
-  getDoc,
-  updateDoc,
-  increment,
-  arrayUnion,
-  arrayRemove,
-} = require("firebase/firestore");
-const db = require("./firebase");
-
-const app = express();
-const port = 5001;
-
 app.use(cors());
 app.use(express.json());
 
@@ -358,6 +335,10 @@ app.post("/api/posts/:id/like", async (req, res) => {
   }
   res.json({ success: true });
 });
+
+const usersRouter = require("./routes/users.js");
+
+app.use("/users", usersRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
