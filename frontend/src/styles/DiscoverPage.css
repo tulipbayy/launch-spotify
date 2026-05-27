@@ -1,0 +1,231 @@
+.discover-container {
+  padding: 2rem 4rem;
+  font-family: sans-serif;
+  color: #333;
+}
+h2 { 
+  font-weight: normal; margin-bottom: 2rem; 
+}
+
+h3 { 
+  font-weight: bold; margin: 0 0 0.5rem 0; 
+}
+
+.clickable {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.clickable:hover {
+  transform: scale(1.02);
+}
+
+.avatar-circle {
+  width: 60%;
+  height: 60%;
+  background-color: rgba(255, 255, 255, 0.4);
+  border: 4px solid rgba(100, 100, 100, 0.3);
+  border-radius: 50%;
+}
+
+.featured-section {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.featured-avatar-block {
+  width: 180px;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+}
+
+.username-text {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: flex-start;
+}
+.action-buttons button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: #555;
+  padding: 0;
+}
+.action-buttons .add-btn {
+  color: #d34040;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 2rem 0;
+}
+
+.more-users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.users-grid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.small-user-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.small-avatar-block {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
+  margin-bottom: 0.5rem;
+}
+
+.small .username-text { 
+  font-size: 0.9rem; 
+}
+
+.small button { 
+  font-size: 0.8rem; 
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #f1e4b3; 
+  padding: 3rem 4rem;
+  border-radius: 8px;
+  position: relative;
+  width: 550px; 
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column; 
+  gap: 2.5rem; 
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.8rem; 
+  cursor: pointer;
+}
+
+.modal-header {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.modal-avatar {
+  width: 140px; 
+  height: 140px;
+  background-color: #8fa0a8; /* Matches your grey silhouette background */
+  border-radius: 50%;
+}
+
+.modal-title h2 { 
+  margin: 0 0 0.5rem 0; 
+  font-weight: bold; 
+  font-size: 2rem; 
+}
+
+.modal-title p {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.modal-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.modal-music {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.music-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fbbd5c;
+  padding: 0.8rem;
+  text-align: center;
+  width: 120px; 
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
+}
+
+.music-label {
+  background-color: #f17f16;
+  color: white;
+  padding: 0.2rem 0;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  width: 100%;
+}
+
+.music-item img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem; 
+  margin-bottom: 0.5rem;
+}
+
+.modal-actions button {
+  background: none;
+  border: none;
+  font-weight: bold;
+  text-align: left;
+  cursor: pointer;
+  font-size: 1.2rem; 
+  display: flex;
+  align-items: center;
+  gap: 0.8rem; 
+}
+
+.modal-actions .add-btn { 
+  color: #d34040; 
+}
+
+.modal-actions button:hover {
+  text-decoration: underline;
+}
