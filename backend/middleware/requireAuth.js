@@ -18,7 +18,7 @@ module.exports = asyncHandler(async (req, res, next) => {
     throw new HttpError(401, 'Session user no longer exists', 'unauthenticated');
   }
 
-  req.user = toSelfUser(snap); // { id, profile, isPublic, displayed*, ... } — no tokens
+  req.user = toSelfUser(snap); // { id, profile, isPrivate, displayed*, ... } — no tokens
   // Lazy: only Spotify routes call this, so DM/forum routes never trigger a refresh.
   req.getAccessToken = () => getValidAccessToken(spotifyUserId);
   next();

@@ -19,7 +19,8 @@ async function getOne(req, res) {
 
   const data = snap.data();
   const isSelf = userId === req.user.id;
-  if (!data.isPublic && !isSelf) {
+  // Public = isPrivate !== true (missing field defaults to private).
+  if (data.isPrivate === true && !isSelf) {
     throw new HttpError(403, 'This profile is private', 'profile_private');
   }
 

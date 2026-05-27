@@ -69,7 +69,7 @@ export interface SelfUser {
     product: string | null
   } | null
   profile: { displayName: string; bio: string }
-  isPublic: boolean
+  isPrivate: boolean
   displayedArtists: string[]
   displayedSongs: string[]
   displayedRange: string
@@ -106,4 +106,94 @@ export const spotify = {
     api.get<{ items: Track[]; next: string | null; total: number }>(
       `/spotify/liked?limit=${limit}&offset=${offset}`
     ),
+}
+
+// --- Profile (self) ---
+export const profile = {
+  get: () => api.get<{ user: SelfUser }>('/profile'),
+  update: (body: { displayName?: string; bio?: string }) =>
+    api.patch<{ user: SelfUser }>('/profile', body),
+  setVisibility: (isPrivate: boolean) =>
+    api.patch<{ user: SelfUser }>('/profile/visibility', { isPrivate }),
+  setDisplayed: (body: {
+    displayedArtists?: string[]
+    displayedSongs?: string[]
+    displayedRange?: string
+  }) => api.put<{ user: SelfUser }>('/profile/displayed', body),
+}
+
+// --- Discover ---
+export interface PublicUser {
+  id: string
+  spotifyProfile: { displayName: string; imageUrl: string | null; country: string | null; product: string | null }
+  profile: { displayName: string; bio: string }
+  displayedArtists: string[]
+  displayedSongs: string[]
+  displayedRange: string
+}
+export const discover = {
+  list: () => api.get<{ users: PublicUser[]; nextCursor: string | null }>('/users'),
+  getOne: (userId: string) =>
+    api.get<{ user: PublicUser; displayedArtists: Artist[]; displayedSongs: Track[] }>(
+      `/users/${userId}`
+    ),
+}
+
+// --- Forums + posts ---
+export interface Forum {
+  id: string
+  name: string
+  description: string
+  createdBy: string
+  createdByName: string
+  postCount: number
+  createdAt: number | null
+}
+export interface Post {
+  id: string
+  forumId: string
+  authorId: string
+  authorName: string
+  body: string
+  likeCount: number
+  liked: boolean
+  createdAt: number | null
+}
+export const forums = {
+  list: (search = '') =>
+    api.get<{ forums: Forum[] }>(`/forums${search ? `?search=${encodeURIComponent(search)}` : ''}`),
+  create: (name: string, description: string) =>
+    api.post<{ forum: Forum }>('/forums', { name, description }),
+  posts: (forumId: string) => api.get<{ posts: Post[] }>(`/forums/${forumId}/posts`),
+  createPost: (forumId: string, body: string) =>
+    api.post<{ post: Post }>(`/forums/${forumId}/posts`, { body }),
+  likePost: (forumId: string, postId: string) =>
+    api.post<{ postId: string; liked: boolean; likeCount: number }>(
+      `/forums/${forumId}/posts/${postId}/like`
+    ),
+}
+
+// --- Messages ---
+export interface Conversation {
+  id: string
+  otherUserId: string | null
+  otherUserName: string | null
+  lastMessage: string
+  lastMessageAt: number | null
+  lastSenderId: string | null
+}
+export interface Message {
+  id: string
+  senderId: string
+  text: string
+  createdAt: number | null
+}
+export const messages = {
+  conversations: () => api.get<{ conversations: Conversation[] }>('/messages/conversations'),
+  conversation: (userId: string) =>
+    api.get<{ conversation: Conversation | null; messages: Message[] }>(
+      `/messages/conversations/${userId}`
+    ),
+  send: (userId: string, text: string) =>
+    api.post<{ message: Message }>(`/messages/conversations/${userId}`, { text }),
 }

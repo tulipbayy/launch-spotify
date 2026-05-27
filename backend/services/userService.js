@@ -17,7 +17,8 @@ function toSelfUser(doc) {
     id: doc.id,
     spotifyProfile: d.spotifyProfile || null,
     profile: d.profile || { displayName: '', bio: '' },
-    isPublic: !!d.isPublic,
+    // Canonical visibility field is `isPrivate`. Missing = private (safe default).
+    isPrivate: d.isPrivate !== false,
     displayedArtists: d.displayedArtists || [],
     displayedSongs: d.displayedSongs || [],
     displayedRange: d.displayedRange || 'all_time',
@@ -64,7 +65,7 @@ async function upsertFromSpotify(me, tokens) {
     await ref.set({
       spotifyProfile,
       profile: { displayName: spotifyProfile.displayName, bio: '' },
-      isPublic: false,
+      isPrivate: true, // private by default
       displayedArtists: [],
       displayedSongs: [],
       displayedRange: 'all_time',
@@ -92,17 +93,20 @@ async function updateProfile(spotifyUserId, fields) {
   return toSelfUser(snap);
 }
 
-// List public users (excluding self). Cursor = last seen doc id.
+// List public users. Public = isPrivate !== true. Filtered + sorted in JS
+// (not via a Firestore where/orderBy) so docs missing the field are handled
+// and no composite index is required. Pagination trimmed in memory.
 async function listPublic({ limit = 20, cursorId = null } = {}) {
-  let q = db
-    .collection(USERS)
-    .where('isPublic', '==', true)
-    .orderBy(admin.firestore.FieldPath.documentId())
-    .limit(limit + 1);
-  if (cursorId) q = q.startAfter(cursorId);
+  const snap = await db.collection(USERS).get();
+  let docs = snap.docs
+    .filter((d) => d.data().isPrivate !== true)
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 
-  const snap = await q.get();
-  const docs = snap.docs;
+  if (cursorId) {
+    const idx = docs.findIndex((d) => d.id === cursorId);
+    if (idx >= 0) docs = docs.slice(idx + 1);
+  }
+
   const hasMore = docs.length > limit;
   const page = hasMore ? docs.slice(0, limit) : docs;
   return {

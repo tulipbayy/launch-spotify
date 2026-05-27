@@ -37,20 +37,26 @@ function shapePost(doc, viewerId) {
 }
 
 // List forums; if `search` given, prefix-match (case-insensitive) on nameLower.
+// The no-search branch fetches all and sorts in JS (not via orderBy) so that
+// forum docs missing a `createdAt` field still appear — Firestore's orderBy
+// silently drops documents that lack the ordered field.
 async function listForums({ search = '', limit = 30 } = {}) {
-  let q = db.collection(FORUMS);
   if (search) {
     const lower = search.toLowerCase();
-    q = q
+    const snap = await db
+      .collection(FORUMS)
       .orderBy('nameLower')
       .startAt(lower)
       .endAt(lower + PREFIX_END_CHAR)
-      .limit(limit);
-  } else {
-    q = q.orderBy('createdAt', 'desc').limit(limit);
+      .limit(limit)
+      .get();
+    return snap.docs.map(shapeForum);
   }
-  const snap = await q.get();
-  return snap.docs.map(shapeForum);
+
+  const snap = await db.collection(FORUMS).limit(limit).get();
+  return snap.docs
+    .map(shapeForum)
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 }
 
 async function createForum({ name, description, createdBy, createdByName }) {
@@ -75,14 +81,16 @@ async function getForum(forumId) {
 }
 
 async function listPosts(forumId, { limit = 30 } = {}, viewerId) {
+  // Sort in JS so posts missing a `createdAt` field still appear (see listForums).
   const snap = await db
     .collection(FORUMS)
     .doc(forumId)
     .collection(POSTS)
-    .orderBy('createdAt', 'desc')
     .limit(limit)
     .get();
-  return snap.docs.map((doc) => shapePost(doc, viewerId));
+  return snap.docs
+    .map((doc) => shapePost(doc, viewerId))
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 }
 
 async function createPost(forumId, { body, authorId, authorName }) {

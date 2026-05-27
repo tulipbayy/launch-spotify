@@ -22,13 +22,13 @@ async function update(req, res) {
   res.json({ user });
 }
 
-// PATCH /api/profile/visibility { isPublic }
+// PATCH /api/profile/visibility { isPrivate }
 async function setVisibility(req, res) {
-  const { isPublic } = req.body || {};
-  if (typeof isPublic !== 'boolean') {
-    throw new HttpError(400, 'isPublic must be a boolean', 'bad_visibility');
+  const { isPrivate } = req.body || {};
+  if (typeof isPrivate !== 'boolean') {
+    throw new HttpError(400, 'isPrivate must be a boolean', 'bad_visibility');
   }
-  const user = await updateProfile(req.user.id, { isPublic });
+  const user = await updateProfile(req.user.id, { isPrivate });
   res.json({ user });
 }
 

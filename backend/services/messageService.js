@@ -42,13 +42,16 @@ function shapeMessage(doc) {
 }
 
 // All conversations involving `meId`, newest activity first.
+// Sorted in JS (not via orderBy) so no composite index is needed for the
+// array-contains + ordering combination.
 async function listConversations(meId) {
   const snap = await db
     .collection(CONVERSATIONS)
     .where('participants', 'array-contains', meId)
-    .orderBy('lastMessageAt', 'desc')
     .get();
-  return snap.docs.map((doc) => shapeConversation(doc, meId));
+  return snap.docs
+    .map((doc) => shapeConversation(doc, meId))
+    .sort((a, b) => (b.lastMessageAt || 0) - (a.lastMessageAt || 0));
 }
 
 // Fetch (without creating) the conversation + messages between me and otherId.
