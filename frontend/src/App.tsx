@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import LikedSongsPage from "./pages/LikedSongsPage";
 import TopArtistsPage from "./pages/TopArtistsPage";
@@ -18,33 +19,18 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <nav>
-        <Link to="/">Home</Link>
-        {" | "}
-        <Link to="/liked">Liked Songs</Link>
-        {" | "}
-        <Link to="/top-artists">Top Artists</Link>
-        {" | "}
-        <Link to="/top-songs">Top Songs</Link>
-        {" | "}
-        <Link to="/profile">Profile</Link>
-        {" | "}
-        <Link to="/discover">Discover</Link>
-        {" | "}
-        <Link to="/inbox">Inbox</Link>
-        {" | "}
-        <Link to="/forum">Forum</Link>
-      </nav>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/liked" element={<LikedSongsPage />} />
-        <Route path="/top-artists" element={<TopArtistsPage />} />
-        <Route path="/top-songs" element={<TopSongsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/discover" element={<DiscoverPage />} />
-        <Route path="/inbox" element={<InboxPage />} />
-        <Route path="/forum" element={<ForumPage />} />
-        <Route path="/forum/:id" element={<ForumDetailPage />} />
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/liked" element={<LikedSongsPage />} />
+          <Route path="/top-artists" element={<TopArtistsPage />} />
+          <Route path="/top-songs" element={<TopSongsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/discover" element={<DiscoverPage />} />
+          <Route path="/inbox" element={<InboxPage />} />
+          <Route path="/forum" element={<ForumPage />} />
+          <Route path="/forum/:id" element={<ForumDetailPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

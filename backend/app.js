@@ -63,7 +63,15 @@ app.get("/auth/callback", async (req, res) => {
   });
 
   const data = await response.json();
-  res.redirect(`http://localhost:5173?accessToken=${data.access_token}`);
+
+  const profileRes = await fetch("https://api.spotify.com/v1/me", {
+    headers: { Authorization: `Bearer ${data.access_token}` },
+  });
+  const profile = await profileRes.json();
+
+  res.redirect(
+    `http://localhost:5173?accessToken=${data.access_token}&userId=${profile.id}`
+  );
 });
 
 app.get("/api/liked-songs", async (req, res) => {
@@ -150,16 +158,6 @@ app.post("/api/posts/:id/like", async (req, res) => {
   }
 
   res.json({ success: true });
-});
-app.get("/auth/callback", async (req, res) => {
-  const data = await response.json();
-  const profileRes = await fetch("https://api.spotify.com/v1/me", {
-    headers: { Authorization: `Bearer ${data.access_token}` },
-  });
-  const profile = await profileRes.json();
-  res.redirect(
-    `http://localhost:5173?accessToken=${data.access_token}&userId=${profile.id}`
-  );
 });
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
