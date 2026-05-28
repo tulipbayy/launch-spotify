@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
-import { profile, ApiError, type SelfUser, type RangeKey } from '../lib/api'
+import { profile, ApiError, type SelfUser } from '../lib/api'
 
 // TEMPORARY data-dump + edit page (no CSS). Exercises profile write endpoints.
-const RANGES: RangeKey[] = ['all_time', 'six_months', 'one_month']
-
 export default function ProfilePage() {
   const [user, setUser] = useState<SelfUser | null>(null)
   const [displayName, setDisplayName] = useState('')
@@ -47,13 +45,6 @@ export default function ProfilePage() {
       .catch(fail)
   }
 
-  const setRange = (range: RangeKey) => {
-    profile
-      .setDisplayed({ displayedRange: range })
-      .then((r) => setUser(r.user))
-      .catch(fail)
-  }
-
   if (error) return <p style={{ color: 'red' }}>Error: {error}</p>
   if (!user) return <p>Loading profile...</p>
 
@@ -83,20 +74,6 @@ export default function ProfilePage() {
       <button onClick={toggleVisibility}>
         Make {user.isPrivate ? 'public' : 'private'}
       </button>
-
-      <h3>Displayed range (currently: {user.displayedRange})</h3>
-      <div>
-        {RANGES.map((r) => (
-          <button
-            key={r}
-            onClick={() => setRange(r)}
-            disabled={r === user.displayedRange}
-            style={{ marginRight: 8 }}
-          >
-            {r}
-          </button>
-        ))}
-      </div>
     </div>
   )
 }

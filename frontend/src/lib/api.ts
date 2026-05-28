@@ -72,7 +72,6 @@ export interface SelfUser {
   isPrivate: boolean
   displayedArtists: string[]
   displayedSongs: string[]
-  displayedRange: string
 }
 
 // Shapes from spotifyApiService.
@@ -115,11 +114,8 @@ export const profile = {
     api.patch<{ user: SelfUser }>('/profile', body),
   setVisibility: (isPrivate: boolean) =>
     api.patch<{ user: SelfUser }>('/profile/visibility', { isPrivate }),
-  setDisplayed: (body: {
-    displayedArtists?: string[]
-    displayedSongs?: string[]
-    displayedRange?: string
-  }) => api.put<{ user: SelfUser }>('/profile/displayed', body),
+  setDisplayed: (body: { displayedArtists?: string[]; displayedSongs?: string[] }) =>
+    api.put<{ user: SelfUser }>('/profile/displayed', body),
 }
 
 // --- Discover ---
@@ -129,7 +125,6 @@ export interface PublicUser {
   profile: { displayName: string; bio: string }
   displayedArtists: string[]
   displayedSongs: string[]
-  displayedRange: string
 }
 export const discover = {
   list: () => api.get<{ users: PublicUser[]; nextCursor: string | null }>('/users'),

@@ -25,4 +25,4 @@ function resolveTimeRange(rangeKey) {
   return TIME_RANGE[rangeKey];
 }
 
-module.exports = { SCOPES, URLS, TIME_RANGE, resolveTimeRange };
+module.exports = { SCOPES, URLS, resolveTimeRange };

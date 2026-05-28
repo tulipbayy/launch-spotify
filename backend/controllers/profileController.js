@@ -32,13 +32,12 @@ async function setVisibility(req, res) {
   res.json({ user });
 }
 
-// PUT /api/profile/displayed { displayedArtists?, displayedSongs?, displayedRange? }
+// PUT /api/profile/displayed { displayedArtists?, displayedSongs? }
 async function setDisplayed(req, res) {
-  const { displayedArtists, displayedSongs, displayedRange } = req.body || {};
+  const { displayedArtists, displayedSongs } = req.body || {};
   const fields = {};
   if (Array.isArray(displayedArtists)) fields.displayedArtists = displayedArtists;
   if (Array.isArray(displayedSongs)) fields.displayedSongs = displayedSongs;
-  if (typeof displayedRange === 'string') fields.displayedRange = displayedRange;
   if (!Object.keys(fields).length) {
     throw new HttpError(400, 'Nothing to update', 'empty_update');
   }

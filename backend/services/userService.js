@@ -21,7 +21,6 @@ function toSelfUser(doc) {
     isPrivate: d.isPrivate !== false,
     displayedArtists: d.displayedArtists || [],
     displayedSongs: d.displayedSongs || [],
-    displayedRange: d.displayedRange || 'all_time',
   };
 }
 
@@ -38,7 +37,6 @@ function toPublicUser(doc) {
     profile: self.profile,
     displayedArtists: self.displayedArtists,
     displayedSongs: self.displayedSongs,
-    displayedRange: self.displayedRange,
   };
 }
 
@@ -68,7 +66,6 @@ async function upsertFromSpotify(me, tokens) {
       isPrivate: true, // private by default
       displayedArtists: [],
       displayedSongs: [],
-      displayedRange: 'all_time',
       spotify,
       createdAt: now,
       updatedAt: now,
@@ -116,7 +113,6 @@ async function listPublic({ limit = 20, cursorId = null } = {}) {
 }
 
 module.exports = {
-  USERS,
   userRef,
   toSelfUser,
   toPublicUser,

@@ -1,0 +1,38 @@
+users {
+    spotifyId:          string       // also the document ID
+    displayName:        string
+    bio:                string
+    email:              string
+    pfp:                string
+    isPrivate:          boolean
+    displayedArtistIds: string[]     // Spotify artist IDs (looked up via API)
+    displayedSongIds:   string[]     // Spotify track IDs (looked up via API)
+}
+
+conversations {                      // document ID, both user IDs sorted + joined: "userA_userB"
+    participantIds:     string[]     // the two users
+    lastMessage:        string
+    lastMessageAt:      timestamp
+}
+
+messages {                           // subcollection: conversations/{id}/messages
+    senderId:           string
+    text:               string
+    timestamp:          timestamp
+}
+
+forums {
+    name:               string
+    description:        string
+    createdBy:          string       // user ID
+    postCount:          number
+    createdAt:          timestamp
+}
+
+posts {                              // subcollection: forums/{id}/posts
+    authorId:           string       // user ID
+    content:            string
+    likedBy:            string[]     // user IDs
+    likes:              number
+    createdAt:          timestamp
+}

@@ -38,4 +38,4 @@ async function liked(req, res) {
   res.json(data);
 }
 
-module.exports = { me, topArtists, topTracks, liked, withToken };
+module.exports = { me, topArtists, topTracks, liked };
