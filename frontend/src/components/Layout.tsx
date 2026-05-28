@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, Link, useLocation } from 'react-router-dom'
 import {
   AppShell,
   Burger,
@@ -8,7 +8,6 @@ import {
   Drawer,
   NavLink,
   Avatar,
-  Text,
   Box,
   Button,
 } from '@mantine/core'
@@ -34,7 +33,6 @@ export default function Layout() {
   const [spotifyId, setSpotifyId] = useState<string | null>(null)
   const [spotifyAvatar, setSpotifyAvatar] = useState<string | null>(null)
   const location = useLocation()
-  const navigate = useNavigate()
 
   useEffect(() => {
     const syncAuth = () => {

@@ -2,21 +2,38 @@ import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import './ProfilePage.css'
 
-const fallbackArtists = [
+type ProfileItem = {
+  name: string
+  subtitle: string
+  image?: string
+}
+
+type Profile = {
+  displayName: string
+  bio: string
+  avatar?: string
+  isPublic: boolean
+  showArtists: boolean
+  showSongs: boolean
+  topArtists: ProfileItem[]
+  topSongs: ProfileItem[]
+}
+
+const fallbackArtists: ProfileItem[] = [
   { name: 'Justin Bieber', subtitle: 'Pop' },
   { name: 'Dua Lipa', subtitle: 'Dance Pop' },
   { name: 'The Weeknd', subtitle: 'R&B' },
   { name: 'Olivia Rodrigo', subtitle: 'Alternative Pop' },
 ]
 
-const fallbackSongs = [
+const fallbackSongs: ProfileItem[] = [
   { name: 'Peaches', subtitle: 'Justin Bieber' },
   { name: 'Levitating', subtitle: 'Dua Lipa' },
   { name: 'Blinding Lights', subtitle: 'The Weeknd' },
   { name: 'Drivers License', subtitle: 'Olivia Rodrigo' },
 ]
 
-const defaultProfile = {
+const defaultProfile: Profile = {
   displayName: 'Username',
   bio:
     'A music-first social profile that blends your Spotify taste with a separate personal profile. Share your favorite artists, keep your top songs private, and connect with people who love the same sounds.',
