@@ -273,7 +273,9 @@ export default function ProfilePage() {
                 />
                 <div className="card-body">
                   <h2 className="card-title">{artist.name}</h2>
-                  <p className="card-subtitle">{artist.subtitle}</p>
+                  {artist.subtitle && artist.subtitle.trim().toLowerCase() !== 'artist' ? (
+                    <p className="card-subtitle">{artist.subtitle}</p>
+                  ) : null}
                 </div>
               </article>
             ))}

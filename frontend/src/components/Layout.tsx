@@ -57,7 +57,7 @@ export default function Layout() {
     setSpotifyId(null)
     setSpotifyAvatar(null)
     window.dispatchEvent(new Event('authChange'))
-    navigate('/profile')
+    window.location.href = '/profile'
   }
 
   return (

@@ -87,14 +87,23 @@
 }
 
 .profile-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: rgba(20, 33, 61, 0.14);
   border: none;
   color: #14213d;
-  width: 48px;
+  min-width: 48px;
   height: 48px;
   border-radius: 16px;
-  font-size: 1.2rem;
+  font-size: 1rem;
+  padding: 0 16px;
   cursor: pointer;
+}
+
+.profile-edit:hover {
+  background: rgba(20, 33, 61, 0.18);
 }
 
 .profile-bio {
@@ -185,8 +194,9 @@
 
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 18px;
+  justify-items: stretch;
 }
 
 .content-card {
