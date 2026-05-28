@@ -34,7 +34,6 @@ app.get("/health", (req, res) => {
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
-// --- Spotify OAuth routes ---
 app.get("/auth/login", (req, res) => {
   const scope = [
     "user-read-email",
