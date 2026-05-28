@@ -1,9 +1,7 @@
 .forum-page {
-  min-height: 100vh;
-  background: #121212;
   padding: 2rem;
   font-family: sans-serif;
-  color: #fff;
+  color: #111;
 }
 
 .forum-container {
@@ -21,14 +19,14 @@
 .forum-title {
   font-size: 28px;
   font-weight: 700;
-  color: #fff;
+  color: #111;
   margin: 0;
 }
 
 .btn-primary {
   background: transparent;
-  color: #fff;
-  border: 1px solid #444;
+  color: #111;
+  border: 1px solid #bbb;
   border-radius: 6px;
   padding: 8px 16px;
   cursor: pointer;
@@ -37,29 +35,29 @@
 }
 
 .btn-primary:hover {
-  border-color: #fff;
+  border-color: #111;
 }
 
 .forum-form {
   padding: 1.5rem 0;
   margin-bottom: 1rem;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid #ddd;
 }
 
 .forum-form h3 {
   margin: 0 0 1rem 0;
   font-size: 15px;
   font-weight: 500;
-  color: #fff;
+  color: #111;
 }
 
 .forum-input {
   width: 100%;
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #1a1a1a;
-  color: #fff;
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  color: #111;
   margin-bottom: 10px;
   box-sizing: border-box;
   font-size: 14px;
@@ -67,16 +65,16 @@
 
 .forum-input:focus {
   outline: none;
-  border-color: #444;
+  border-color: #aaa;
 }
 
 .forum-search {
   width: 100%;
   padding: 10px 16px;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #1a1a1a;
-  color: #fff;
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  color: #111;
   margin-bottom: 1.5rem;
   box-sizing: border-box;
   font-size: 14px;
@@ -84,7 +82,7 @@
 
 .forum-search:focus {
   outline: none;
-  border-color: #444;
+  border-color: #aaa;
 }
 
 .forum-list {
@@ -105,28 +103,28 @@
 }
 
 .forum-card:hover {
-  background: #1a1a1a;
+  background: #f0f0f0;
 }
 
 .forum-card-info h3 {
   margin: 0 0 2px 0;
   font-size: 15px;
   font-weight: 500;
-  color: #fff;
+  color: #111;
 }
 
 .forum-card-info p {
   margin: 0;
   font-size: 13px;
-  color: #aaa;
+  color: #666;
 }
 
 .forum-card-meta {
   font-size: 13px;
-  color: #aaa;
+  color: #666;
 }
 
 .forum-empty {
   font-size: 14px;
-  color: #aaa;
+  color: #666;
 }

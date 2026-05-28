@@ -145,7 +145,9 @@ app.get("/auth/callback", async (req, res) => {
     }
 
     return res.redirect(
-      `${FRONTEND_URL}/profile?spotifyId=${encodeURIComponent(spotifyId)}`
+      `${FRONTEND_URL}/profile?spotifyId=${encodeURIComponent(
+        spotifyId
+      )}&accessToken=${tokenData.access_token}`
     );
   } catch (err) {
     console.error("Error in /auth/callback", err);
