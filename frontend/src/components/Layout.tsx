@@ -8,12 +8,10 @@ import {
   Drawer,
   NavLink,
   Avatar,
-  Text,
   Box,
   Button,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { auth, type SelfUser } from '../lib/api'
 import './Layout.css'
 
 const TOP_BAR_COLOR = '#011A27'
@@ -32,46 +30,68 @@ const navItems = [
 
 export default function Layout() {
   const [opened, { open, close }] = useDisclosure(false)
-  const [user, setUser] = useState<SelfUser | null>(null)
+  const [spotifyId, setSpotifyId] = useState<string | null>(null)
+  const [spotifyAvatar, setSpotifyAvatar] = useState<string | null>(null)
   const location = useLocation()
 
-  // Hydrate auth state on mount (returns null if not logged in).
   useEffect(() => {
-    auth.me().then(setUser).catch(() => setUser(null))
+    const syncAuth = () => {
+      setSpotifyId(localStorage.getItem('spotifyId'))
+      setSpotifyAvatar(localStorage.getItem('spotifyAvatar'))
+    }
+
+    syncAuth()
+    window.addEventListener('authChange', syncAuth)
+    window.addEventListener('storage', syncAuth)
+    return () => {
+      window.removeEventListener('authChange', syncAuth)
+      window.removeEventListener('storage', syncAuth)
+    }
   }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('spotifyId')
+    localStorage.removeItem('spotifyAvatar')
+    setSpotifyId(null)
+    setSpotifyAvatar(null)
+    window.dispatchEvent(new Event('authChange'))
+    window.location.href = '/profile'
+  }
 
   return (
     <AppShell header={{ height: 60 }} padding="md">
       <AppShell.Header style={{ backgroundColor: TOP_BAR_COLOR, border: 'none' }}>
         <Group h="100%" px="md" justify="space-between" wrap="nowrap">
           <Group style={{ flex: 1 }} justify="flex-start">
-            <Burger opened={false} onClick={open} color="white" aria-label="open sidebar" />
+            <Burger opened={opened} onClick={open} color="white" aria-label="open sidebar" />
           </Group>
 
           <Title order={4} c="white" fw={600} style={{ letterSpacing: '0.5px' }}>
-            Spotify App
+            SpotSocial
           </Title>
 
           <Group style={{ flex: 1 }} justify="flex-end" gap="sm" wrap="nowrap">
-            {user ? (
+            {spotifyId ? (
               <>
-                <Text c="white" size="sm" visibleFrom="xs">
-                  {user.profile?.displayName || user.spotifyProfile?.displayName}
-                </Text>
-                <Avatar src={user.spotifyProfile?.imageUrl || undefined} radius="xl" size={32} />
+                <Avatar src={spotifyAvatar || undefined} radius="xl" size={32} />
                 <Button
-                  variant="subtle"
-                  color="gray"
-                  c="white"
-                  size="compact-sm"
-                  onClick={() => auth.logout().then(() => setUser(null))}
+                  variant="filled"
+                  size="xs"
+                  color="dark"
+                  onClick={handleLogout}
                 >
-                  Log out
+                  Logout
                 </Button>
               </>
             ) : (
-              <Button variant="white" color="dark" onClick={() => auth.login()}>
-                Sign in with Spotify
+              <Button
+                variant="filled"
+                size="xs"
+                color="dark"
+                component="a"
+                href="http://localhost:5001/auth/login"
+              >
+                Login with Spotify
               </Button>
             )}
           </Group>
