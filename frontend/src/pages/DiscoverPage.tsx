@@ -29,7 +29,7 @@ export default function DiscoverPage() {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await fetch('http://127.0.0.1:5000/users');
+        const response = await fetch('http://localhost:5001/users');
         const realData = await response.json();
         const BRAND_COLORS = ["#1b3b5a", "#fbbd5c", "#da3b3a", "#f17f16", "#8fa0a8"];
         const usersWithColors = realData.map((u: User, index: number) => {

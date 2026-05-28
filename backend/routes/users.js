@@ -1,13 +1,14 @@
-import express from 'express';
-import db from '../firebaseAdmin.js';
+const express = require('express');
+const db = require('../firebaseAdmin.js');
 
 const router = express.Router();
 
 // get all public users
 router.get('/', async (req, res) => {
     try {
-        const usersRef = db.collection('users');
-        const snapshot = await usersRef.where('isPrivate', '==', false).get();
+        const usersRef = db.collection('profiles');
+        // const snapshot = await usersRef.where('isPublic', '==', false).get();
+        const snapshot = await usersRef.get();
 
         const usersPromises = snapshot.docs.map(async (doc) => {
             const data = doc.data();
@@ -60,4 +61,4 @@ router.get('/', async (req, res) => {
     }
 });
 
-export default router;
+module.exports = router;

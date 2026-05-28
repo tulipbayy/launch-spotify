@@ -1,3 +1,25 @@
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const adminDb = require("./firebaseAdmin");
+const {
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  doc,
+  getDoc,
+  updateDoc,
+  increment,
+  arrayUnion,
+  arrayRemove,
+} = require("firebase/firestore");
+const db = require("./firebase");
+const app = express();
+const port = 5001;
+
 app.use(cors());
 app.use(express.json());
 
@@ -114,6 +136,7 @@ app.get("/auth/callback", async (req, res) => {
           email: me.email,
           topArtists,
           topSongs,
+          isPublic,
         },
         { merge: true }
       );
