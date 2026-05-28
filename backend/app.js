@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('Spotify backend is running.');
+  res.send('SpotSocial backend is running.');
 });
 
 app.get('/health', (req, res) => {

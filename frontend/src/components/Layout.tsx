@@ -69,7 +69,7 @@ export default function Layout() {
           </Group>
 
           <Title order={4} c="white" fw={600} style={{ letterSpacing: '0.5px' }}>
-            Spotify App
+            SpotSocial
           </Title>
 
           <Group style={{ flex: 1 }} justify="flex-end" gap="sm" wrap="nowrap">
