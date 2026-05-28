@@ -29,8 +29,8 @@ function shapePost(doc, viewerId) {
     forumId: d.forumId,
     authorId: d.authorId,
     authorName: d.authorName || '',
-    body: d.body,
-    likeCount: d.likeCount || 0,
+    content: d.content,
+    likes: d.likes || 0,
     liked: Array.isArray(d.likedBy) ? d.likedBy.includes(viewerId) : false,
     createdAt: d.createdAt?.toMillis?.() || null,
   };
@@ -93,7 +93,7 @@ async function listPosts(forumId, { limit = 30 } = {}, viewerId) {
     .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 }
 
-async function createPost(forumId, { body, authorId, authorName }) {
+async function createPost(forumId, { content, authorId, authorName }) {
   const forumRef = db.collection(FORUMS).doc(forumId);
   const forumSnap = await forumRef.get();
   if (!forumSnap.exists) throw new HttpError(404, 'Forum not found', 'forum_not_found');
@@ -103,8 +103,8 @@ async function createPost(forumId, { body, authorId, authorName }) {
     forumId,
     authorId,
     authorName,
-    body,
-    likeCount: 0,
+    content,
+    likes: 0,
     likedBy: [],
     createdAt: now,
   });
@@ -131,12 +131,12 @@ async function toggleLike(forumId, postId, userId) {
       likedBy: liked
         ? admin.firestore.FieldValue.arrayRemove(userId)
         : admin.firestore.FieldValue.arrayUnion(userId),
-      likeCount: admin.firestore.FieldValue.increment(liked ? -1 : 1),
+      likes: admin.firestore.FieldValue.increment(liked ? -1 : 1),
     });
     return {
       postId,
       liked: !liked,
-      likeCount: (data.likeCount || 0) + (liked ? -1 : 1),
+      likes: (data.likes || 0) + (liked ? -1 : 1),
     };
   });
 }

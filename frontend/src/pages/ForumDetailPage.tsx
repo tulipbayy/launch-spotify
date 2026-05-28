@@ -1,69 +1,62 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import "./ForumDetailPage.css";
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { forums, ApiError, type Post } from '../lib/api'
+import './ForumDetailPage.css'
 
+// Forum detail (posts) via the modular backend (lib/api, cookie session).
 export default function ForumDetailPage() {
-  const { id } = useParams();
-  const [posts, setPosts] = useState<any[]>([]);
-  const [newPost, setNewPost] = useState("");
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const userId = sessionStorage.getItem("userId");
+  const { id } = useParams()
+  const [posts, setPosts] = useState<Post[]>([])
+  const [newPost, setNewPost] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
+
+  const fail = (e: unknown) =>
+    setError(e instanceof ApiError ? `${e.status} ${e.message} (${e.code})` : String(e))
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const response = await fetch(
-        `http://127.0.0.1:3001/api/forums/${id}/posts`
-      );
-      const data = await response.json();
-      setPosts(data);
-      setLoading(false);
-    };
-    fetchPosts();
-  }, [id]);
+    if (!id) return
+    forums
+      .posts(id)
+      .then((r) => setPosts(r.posts))
+      .catch(fail)
+      .finally(() => setLoading(false))
+  }, [id])
 
-  const createPost = async () => {
-    if (!newPost.trim()) return;
-    const response = await fetch(
-      `http://127.0.0.1:3001/api/forums/${id}/posts`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: newPost, createdBy: userId }),
-      }
-    );
-    const post = await response.json();
-    setPosts([post, ...posts]);
-    setNewPost("");
-  };
+  const createPost = () => {
+    if (!id || !newPost.trim()) return
+    forums
+      .createPost(id, newPost.trim())
+      .then((r) => {
+        setPosts((prev) => [r.post, ...prev])
+        setNewPost('')
+      })
+      .catch(fail)
+  }
 
-  const likePost = async (postId: string) => {
-    await fetch(`http://127.0.0.1:3001/api/posts/${postId}/like`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
-    setPosts(
-      posts.map((p) =>
-        p.id === postId
-          ? {
-              ...p,
-              likes: p.likedBy?.includes(userId) ? p.likes - 1 : p.likes + 1,
-              likedBy: p.likedBy?.includes(userId)
-                ? p.likedBy.filter((uid: string) => uid !== userId)
-                : [...(p.likedBy || []), userId],
-            }
-          : p
+  const likePost = (postId: string) => {
+    if (!id) return
+    forums
+      .likePost(id, postId)
+      .then((r) =>
+        setPosts((prev) =>
+          prev.map((p) =>
+            p.id === postId ? { ...p, liked: r.liked, likes: r.likes } : p
+          )
+        )
       )
-    );
-  };
+      .catch(fail)
+  }
 
   return (
     <div className="detail-page">
       <div className="detail-container">
-        <button className="detail-back" onClick={() => navigate("/forum")}>
+        <button className="detail-back" onClick={() => navigate('/forum')}>
           ← Back to Forums
         </button>
+
+        {error && <p className="detail-empty" style={{ color: '#ff6b6b' }}>Error: {error}</p>}
 
         <div className="post-form">
           <h3>Write a post</h3>
@@ -89,14 +82,10 @@ export default function ForumDetailPage() {
               <div key={post.id} className="post-card">
                 <p className="post-content">{post.content}</p>
                 <div className="post-footer">
-                  <span className="post-author">
-                    Posted by {post.createdBy}
-                  </span>
+                  <span className="post-author">Posted by {post.authorName}</span>
                   <button
                     onClick={() => likePost(post.id)}
-                    className={`btn-like ${
-                      post.likedBy?.includes(userId) ? "liked" : "unliked"
-                    }`}
+                    className={`btn-like ${post.liked ? 'liked' : 'unliked'}`}
                   >
                     Like {post.likes}
                   </button>
@@ -107,5 +96,5 @@ export default function ForumDetailPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

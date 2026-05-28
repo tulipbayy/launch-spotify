@@ -7,14 +7,14 @@ async function list(req, res) {
 }
 
 async function create(req, res) {
-  const { body } = req.body || {};
-  if (!body || !body.trim()) {
-    throw new HttpError(400, 'Post body is required', 'missing_body');
+  const { content } = req.body || {};
+  if (!content || !content.trim()) {
+    throw new HttpError(400, 'Post content is required', 'missing_content');
   }
   const post = await forumService.createPost(req.params.forumId, {
-    body: body.trim(),
+    content: content.trim(),
     authorId: req.user.id,
-    authorName: req.user.profile?.displayName || req.user.id,
+    authorName: req.user.displayName || req.user.id,
   });
   res.status(201).json({ post });
 }

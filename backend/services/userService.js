@@ -1,5 +1,5 @@
-// Firestore users collection: upsert on login, profile reads/writes, and
-// shapers that strip Spotify tokens (and email) before data leaves the server.
+// Firestore users collection (flat schema). Upsert on login, profile
+// reads/writes, and shapers that strip Spotify tokens before data leaves the server.
 const admin = require('firebase-admin');
 const db = require('../firebaseAdmin');
 
@@ -15,12 +15,14 @@ function toSelfUser(doc) {
   if (!d) return null;
   return {
     id: doc.id,
-    spotifyProfile: d.spotifyProfile || null,
-    profile: d.profile || { displayName: '', bio: '' },
-    // Canonical visibility field is `isPrivate`. Missing = private (safe default).
+    displayName: d.displayName || '',
+    bio: d.bio || '',
+    email: d.email || null,
+    pfp: d.pfp || null,
+    // Missing isPrivate = private (safe default).
     isPrivate: d.isPrivate !== false,
-    displayedArtists: d.displayedArtists || [],
-    displayedSongs: d.displayedSongs || [],
+    displayedArtistIds: d.displayedArtistIds || [],
+    displayedSongIds: d.displayedSongIds || [],
   };
 }
 
@@ -28,15 +30,13 @@ function toSelfUser(doc) {
 function toPublicUser(doc) {
   const self = toSelfUser(doc);
   if (!self) return null;
-  // Strip email from the public view.
-  const { email: _email, ...spotifyProfile } = self.spotifyProfile || {};
-  void _email;
   return {
     id: self.id,
-    spotifyProfile,
-    profile: self.profile,
-    displayedArtists: self.displayedArtists,
-    displayedSongs: self.displayedSongs,
+    displayName: self.displayName,
+    bio: self.bio,
+    pfp: self.pfp,
+    displayedArtistIds: self.displayedArtistIds,
+    displayedSongIds: self.displayedSongIds,
   };
 }
 
@@ -44,35 +44,37 @@ function toPublicUser(doc) {
 async function upsertFromSpotify(me, tokens) {
   const ref = userRef(me.id);
   const now = admin.firestore.FieldValue.serverTimestamp();
-  const spotifyProfile = {
-    displayName: me.display_name || me.id,
+
+  // Spotify-sourced fields refreshed on every login.
+  const spotifyFields = {
     email: me.email || null,
-    imageUrl: me.images?.[0]?.url || null,
-    country: me.country || null,
-    product: me.product || null,
+    pfp: me.images?.[0]?.url || null,
   };
-  const spotify = {
+  const tokenFields = {
     accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token,
-    expiresAt: Date.now() + tokens.expires_in * 1000,
+    tokenExpiresAt: Date.now() + tokens.expires_in * 1000,
     scope: tokens.scope || '',
   };
 
   const snap = await ref.get();
   if (!snap.exists) {
     await ref.set({
-      spotifyProfile,
-      profile: { displayName: spotifyProfile.displayName, bio: '' },
+      spotifyId: me.id,
+      displayName: me.display_name || me.id,
+      bio: '',
+      ...spotifyFields,
       isPrivate: true, // private by default
-      displayedArtists: [],
-      displayedSongs: [],
-      spotify,
+      displayedArtistIds: [],
+      displayedSongIds: [],
+      ...tokenFields,
       createdAt: now,
       updatedAt: now,
       lastLoginAt: now,
     });
   } else {
-    await ref.update({ spotifyProfile, spotify, lastLoginAt: now, updatedAt: now });
+    // Preserve user-edited displayName/bio; refresh Spotify fields + tokens.
+    await ref.update({ ...spotifyFields, ...tokenFields, lastLoginAt: now, updatedAt: now });
   }
   return me.id;
 }
@@ -90,9 +92,8 @@ async function updateProfile(spotifyUserId, fields) {
   return toSelfUser(snap);
 }
 
-// List public users. Public = isPrivate !== true. Filtered + sorted in JS
-// (not via a Firestore where/orderBy) so docs missing the field are handled
-// and no composite index is required. Pagination trimmed in memory.
+// List public users. Public = isPrivate !== true. Filtered + sorted in JS so
+// docs missing the field are handled and no composite index is required.
 async function listPublic({ limit = 20, cursorId = null } = {}) {
   const snap = await db.collection(USERS).get();
   let docs = snap.docs
@@ -112,6 +113,12 @@ async function listPublic({ limit = 20, cursorId = null } = {}) {
   };
 }
 
+// Display name for a user id (used to denormalize into forums/posts/conversations).
+async function displayNameOf(spotifyUserId) {
+  const snap = await userRef(spotifyUserId).get();
+  return snap.exists ? snap.data().displayName || spotifyUserId : spotifyUserId;
+}
+
 module.exports = {
   userRef,
   toSelfUser,
@@ -120,4 +127,5 @@ module.exports = {
   getById,
   updateProfile,
   listPublic,
+  displayNameOf,
 };

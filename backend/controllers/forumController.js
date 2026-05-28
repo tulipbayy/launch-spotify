@@ -16,7 +16,7 @@ async function create(req, res) {
     name: name.trim(),
     description: (description || '').trim(),
     createdBy: req.user.id,
-    createdByName: req.user.profile?.displayName || req.user.id,
+    createdByName: req.user.displayName || req.user.id,
   });
   res.status(201).json({ forum });
 }

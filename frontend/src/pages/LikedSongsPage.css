@@ -98,6 +98,18 @@
   font-variant-numeric: tabular-nums;
 }
 
+.track-link {
+  color: #1DB954;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.track-link:hover {
+  background-color: rgba(29, 185, 84, 0.15);
+}
+
 .skeleton-list {
   display: flex;
   flex-direction: column;

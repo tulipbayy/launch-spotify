@@ -61,17 +61,13 @@ export const auth = {
 // Shape returned by /auth/me and /api/profile (mirrors userService.toSelfUser).
 export interface SelfUser {
   id: string
-  spotifyProfile: {
-    displayName: string
-    email: string | null
-    imageUrl: string | null
-    country: string | null
-    product: string | null
-  } | null
-  profile: { displayName: string; bio: string }
+  displayName: string
+  bio: string
+  email: string | null
+  pfp: string | null
   isPrivate: boolean
-  displayedArtists: string[]
-  displayedSongs: string[]
+  displayedArtistIds: string[]
+  displayedSongIds: string[]
 }
 
 // Shapes from spotifyApiService.
@@ -114,17 +110,18 @@ export const profile = {
     api.patch<{ user: SelfUser }>('/profile', body),
   setVisibility: (isPrivate: boolean) =>
     api.patch<{ user: SelfUser }>('/profile/visibility', { isPrivate }),
-  setDisplayed: (body: { displayedArtists?: string[]; displayedSongs?: string[] }) =>
+  setDisplayed: (body: { displayedArtistIds?: string[]; displayedSongIds?: string[] }) =>
     api.put<{ user: SelfUser }>('/profile/displayed', body),
 }
 
 // --- Discover ---
 export interface PublicUser {
   id: string
-  spotifyProfile: { displayName: string; imageUrl: string | null; country: string | null; product: string | null }
-  profile: { displayName: string; bio: string }
-  displayedArtists: string[]
-  displayedSongs: string[]
+  displayName: string
+  bio: string
+  pfp: string | null
+  displayedArtistIds: string[]
+  displayedSongIds: string[]
 }
 export const discover = {
   list: () => api.get<{ users: PublicUser[]; nextCursor: string | null }>('/users'),
@@ -149,8 +146,8 @@ export interface Post {
   forumId: string
   authorId: string
   authorName: string
-  body: string
-  likeCount: number
+  content: string
+  likes: number
   liked: boolean
   createdAt: number | null
 }
@@ -160,10 +157,10 @@ export const forums = {
   create: (name: string, description: string) =>
     api.post<{ forum: Forum }>('/forums', { name, description }),
   posts: (forumId: string) => api.get<{ posts: Post[] }>(`/forums/${forumId}/posts`),
-  createPost: (forumId: string, body: string) =>
-    api.post<{ post: Post }>(`/forums/${forumId}/posts`, { body }),
+  createPost: (forumId: string, content: string) =>
+    api.post<{ post: Post }>(`/forums/${forumId}/posts`, { content }),
   likePost: (forumId: string, postId: string) =>
-    api.post<{ postId: string; liked: boolean; likeCount: number }>(
+    api.post<{ postId: string; liked: boolean; likes: number }>(
       `/forums/${forumId}/posts/${postId}/like`
     ),
 }
@@ -181,7 +178,7 @@ export interface Message {
   id: string
   senderId: string
   text: string
-  createdAt: number | null
+  timestamp: number | null
 }
 export const messages = {
   conversations: () => api.get<{ conversations: Conversation[] }>('/messages/conversations'),

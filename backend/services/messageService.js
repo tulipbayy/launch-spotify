@@ -15,12 +15,12 @@ function conversationId(a, b) {
 
 function displayNameOf(snap) {
   const d = snap.data();
-  return d.profile?.displayName || d.spotifyProfile?.displayName || snap.id;
+  return d.displayName || snap.id;
 }
 
 function shapeConversation(doc, meId) {
   const d = doc.data();
-  const otherId = (d.participants || []).find((p) => p !== meId) || null;
+  const otherId = (d.participantIds || []).find((p) => p !== meId) || null;
   return {
     id: doc.id,
     otherUserId: otherId,
@@ -37,7 +37,7 @@ function shapeMessage(doc) {
     id: doc.id,
     senderId: d.senderId,
     text: d.text,
-    createdAt: d.createdAt?.toMillis?.() || null,
+    timestamp: d.timestamp?.toMillis?.() || null,
   };
 }
 
@@ -47,7 +47,7 @@ function shapeMessage(doc) {
 async function listConversations(meId) {
   const snap = await db
     .collection(CONVERSATIONS)
-    .where('participants', 'array-contains', meId)
+    .where('participantIds', 'array-contains', meId)
     .get();
   return snap.docs
     .map((doc) => shapeConversation(doc, meId))
@@ -62,7 +62,7 @@ async function getConversation(meId, otherId) {
     .collection(CONVERSATIONS)
     .doc(convId)
     .collection(MESSAGES)
-    .orderBy('createdAt', 'asc')
+    .orderBy('timestamp', 'asc')
     .limit(200)
     .get();
   return {
@@ -90,12 +90,11 @@ async function sendMessage(meId, otherId, text) {
 
   await convRef.set(
     {
-      participants: [meId, otherId].sort(),
+      participantIds: [meId, otherId].sort(),
       participantNames,
       lastMessage: text,
       lastMessageAt: now,
       lastSenderId: meId,
-      createdAt: now,
     },
     { merge: true }
   );
@@ -103,7 +102,7 @@ async function sendMessage(meId, otherId, text) {
   const msgRef = await convRef.collection(MESSAGES).add({
     senderId: meId,
     text,
-    createdAt: now,
+    timestamp: now,
   });
   const msgSnap = await msgRef.get();
   return shapeMessage(msgSnap);

@@ -28,8 +28,8 @@ async function getOne(req, res) {
   // (public catalog endpoints — no need for the profile owner's token).
   const accessToken = await req.getAccessToken();
   const [displayedArtists, displayedSongs] = await Promise.all([
-    spotify.getArtistsByIds(accessToken, data.displayedArtists || []),
-    spotify.getTracksByIds(accessToken, data.displayedSongs || []),
+    spotify.getArtistsByIds(accessToken, data.displayedArtistIds || []),
+    spotify.getTracksByIds(accessToken, data.displayedSongIds || []),
   ]);
 
   res.json({ user: toPublicUser(snap), displayedArtists, displayedSongs });

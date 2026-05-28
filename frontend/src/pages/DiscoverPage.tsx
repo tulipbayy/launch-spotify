@@ -43,7 +43,7 @@ export default function DiscoverPage() {
       <ul>
         {users.map((u) => (
           <li key={u.id}>
-            {u.profile?.displayName || u.spotifyProfile?.displayName} ({u.id}){' '}
+            {u.displayName} ({u.id}){' '}
             <button onClick={() => view(u.id)}>View</button>
           </li>
         ))}
@@ -51,7 +51,7 @@ export default function DiscoverPage() {
 
       {selected && (
         <div>
-          <h3>Viewing: {selected.user.profile?.displayName || selected.user.id}</h3>
+          <h3>Viewing: {selected.user.displayName || selected.user.id}</h3>
           <pre>{JSON.stringify(selected.user, null, 2)}</pre>
           <h4>Displayed Artists</h4>
           <ol>

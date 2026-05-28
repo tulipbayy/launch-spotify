@@ -10,15 +10,13 @@ async function getMine(req, res) {
 // PATCH /api/profile { displayName?, bio? }
 async function update(req, res) {
   const { displayName, bio } = req.body || {};
-  const profile = {};
-  if (typeof displayName === 'string') profile.displayName = displayName.trim();
-  if (typeof bio === 'string') profile.bio = bio.trim();
-  if (!Object.keys(profile).length) {
+  const fields = {};
+  if (typeof displayName === 'string') fields.displayName = displayName.trim();
+  if (typeof bio === 'string') fields.bio = bio.trim();
+  if (!Object.keys(fields).length) {
     throw new HttpError(400, 'Nothing to update', 'empty_update');
   }
-  // Merge into the existing profile map.
-  const current = req.user.profile || {};
-  const user = await updateProfile(req.user.id, { profile: { ...current, ...profile } });
+  const user = await updateProfile(req.user.id, fields);
   res.json({ user });
 }
 
@@ -32,12 +30,12 @@ async function setVisibility(req, res) {
   res.json({ user });
 }
 
-// PUT /api/profile/displayed { displayedArtists?, displayedSongs? }
+// PUT /api/profile/displayed { displayedArtistIds?, displayedSongIds? }
 async function setDisplayed(req, res) {
-  const { displayedArtists, displayedSongs } = req.body || {};
+  const { displayedArtistIds, displayedSongIds } = req.body || {};
   const fields = {};
-  if (Array.isArray(displayedArtists)) fields.displayedArtists = displayedArtists;
-  if (Array.isArray(displayedSongs)) fields.displayedSongs = displayedSongs;
+  if (Array.isArray(displayedArtistIds)) fields.displayedArtistIds = displayedArtistIds;
+  if (Array.isArray(displayedSongIds)) fields.displayedSongIds = displayedSongIds;
   if (!Object.keys(fields).length) {
     throw new HttpError(400, 'Nothing to update', 'empty_update');
   }
