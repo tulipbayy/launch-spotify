@@ -12,6 +12,7 @@ import {
   Button,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { auth, type SelfUser } from '../lib/api'
 import './Layout.css'
 
 const TOP_BAR_COLOR = '#011A27'
@@ -29,33 +30,17 @@ const navItems = [
 ]
 
 export default function Layout() {
-  const [opened, { open, close }] = useDisclosure(false)
-  const [spotifyId, setSpotifyId] = useState<string | null>(null)
-  const [spotifyAvatar, setSpotifyAvatar] = useState<string | null>(null)
+  const [opened, { toggle, close }] = useDisclosure(false)
+  const [user, setUser] = useState<SelfUser | null>(null)
   const location = useLocation()
 
+  // Hydrate auth state from the cookie session (null if not logged in).
   useEffect(() => {
-    const syncAuth = () => {
-      setSpotifyId(localStorage.getItem('spotifyId'))
-      setSpotifyAvatar(localStorage.getItem('spotifyAvatar'))
-    }
-
-    syncAuth()
-    window.addEventListener('authChange', syncAuth)
-    window.addEventListener('storage', syncAuth)
-    return () => {
-      window.removeEventListener('authChange', syncAuth)
-      window.removeEventListener('storage', syncAuth)
-    }
+    auth.me().then(setUser).catch(() => setUser(null))
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem('spotifyId')
-    localStorage.removeItem('spotifyAvatar')
-    setSpotifyId(null)
-    setSpotifyAvatar(null)
-    window.dispatchEvent(new Event('authChange'))
-    window.location.href = '/profile'
+    auth.logout().then(() => setUser(null))
   }
 
   return (
@@ -63,7 +48,14 @@ export default function Layout() {
       <AppShell.Header style={{ backgroundColor: TOP_BAR_COLOR, border: 'none' }}>
         <Group h="100%" px="md" justify="space-between" wrap="nowrap">
           <Group style={{ flex: 1 }} justify="flex-start">
-            <Burger opened={opened} onClick={open} color="white" aria-label="open sidebar" />
+            <Burger
+              opened={opened}
+              onClick={toggle}
+              color="white"
+              aria-label="open sidebar"
+              size={18}
+              transitionDuration={0}
+            />
           </Group>
 
           <Title order={4} c="white" fw={600} style={{ letterSpacing: '0.5px' }}>
@@ -71,26 +63,15 @@ export default function Layout() {
           </Title>
 
           <Group style={{ flex: 1 }} justify="flex-end" gap="sm" wrap="nowrap">
-            {spotifyId ? (
+            {user ? (
               <>
-                <Avatar src={spotifyAvatar || undefined} radius="xl" size={32} />
-                <Button
-                  variant="filled"
-                  size="xs"
-                  color="dark"
-                  onClick={handleLogout}
-                >
+                <Avatar src={user.pfp || undefined} radius="xl" size={32} />
+                <Button variant="filled" size="xs" color="dark" onClick={handleLogout}>
                   Logout
                 </Button>
               </>
             ) : (
-              <Button
-                variant="filled"
-                size="xs"
-                color="dark"
-                component="a"
-                href="http://localhost:5001/auth/login"
-              >
+              <Button variant="filled" size="xs" color="dark" onClick={() => auth.login()}>
                 Login with Spotify
               </Button>
             )}

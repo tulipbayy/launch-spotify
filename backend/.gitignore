@@ -1,5 +1,4 @@
 node_modules
-package-lock.json
 .env
 permissions.json 
 helper-scripts

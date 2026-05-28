@@ -1,61 +1,57 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "./ForumPage.css";
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { forums, ApiError, type Forum } from '../lib/api'
+import './ForumPage.css'
 
 export default function ForumPage() {
-  const [forums, setForums] = useState<any[]>([]);
-  const [search, setSearch] = useState("");
-  const [newForumName, setNewForumName] = useState("");
-  const [newForumDesc, setNewForumDesc] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const userId = sessionStorage.getItem("userId");
+  const [list, setList] = useState<Forum[]>([])
+  const [search, setSearch] = useState('')
+  const [newForumName, setNewForumName] = useState('')
+  const [newForumDesc, setNewForumDesc] = useState('')
+  const [showForm, setShowForm] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
+
+  const fail = (e: unknown) =>
+    setError(e instanceof ApiError ? `${e.status} ${e.message} (${e.code})` : String(e))
 
   useEffect(() => {
-    const fetchForums = async () => {
-      const response = await fetch("http://127.0.0.1:5001/api/forums");
-      const data = await response.json();
-      setForums(data);
-      setLoading(false);
-    };
-    fetchForums();
-  }, []);
+    forums
+      .list()
+      .then((r) => setList(r.forums))
+      .catch(fail)
+      .finally(() => setLoading(false))
+  }, [])
 
-  const createForum = async () => {
-    if (!newForumName.trim()) return;
-    const response = await fetch("http://127.0.0.1:5001/api/forums", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: newForumName,
-        description: newForumDesc,
-        createdBy: userId,
-      }),
-    });
-    const newForum = await response.json();
-    setForums([...forums, newForum]);
-    setNewForumName("");
-    setNewForumDesc("");
-    setShowForm(false);
-  };
+  const createForum = () => {
+    if (!newForumName.trim()) return
+    forums
+      .create(newForumName.trim(), newForumDesc.trim())
+      .then((r) => {
+        setList((prev) => [...prev, r.forum])
+        setNewForumName('')
+        setNewForumDesc('')
+        setShowForm(false)
+      })
+      .catch(fail)
+  }
 
-  const filteredForums = forums.filter((f) =>
+  const filteredForums = list.filter((f) =>
     f.name.toLowerCase().includes(search.toLowerCase())
-  );
+  )
 
   return (
     <div className="forum-page">
       <div className="forum-container">
         <div className="forum-header">
           <h1 className="forum-title">Forums</h1>
-          <button
-            className="btn-primary"
-            onClick={() => setShowForm(!showForm)}
-          >
+          <button className="btn-primary" onClick={() => setShowForm(!showForm)}>
             + New Forum
           </button>
         </div>
+
+        {error && <p className="forum-empty" style={{ color: '#ff6b6b' }}>Error: {error}</p>}
 
         {showForm && (
           <div className="forum-form">
@@ -111,5 +107,5 @@ export default function ForumPage() {
         )}
       </div>
     </div>
-  );
+  )
 }
