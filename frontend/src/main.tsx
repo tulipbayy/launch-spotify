@@ -3,13 +3,13 @@ import { createRoot } from 'react-dom/client'
 import { MantineProvider } from '@mantine/core'
 import '@mantine/core/styles.css'
 import { theme } from './theme'
-import './index.css'
 import App from './App.tsx'
+import './index.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <MantineProvider theme={theme}>
       <App />
     </MantineProvider>
-  </StrictMode>,
+  </StrictMode>
 )

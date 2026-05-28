@@ -12,6 +12,7 @@ import {
   Button,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { auth, type SelfUser } from '../lib/api'
 import './Layout.css'
 
 const TOP_BAR_COLOR = '#011A27'
@@ -30,32 +31,16 @@ const navItems = [
 
 export default function Layout() {
   const [opened, { open, close }] = useDisclosure(false)
-  const [spotifyId, setSpotifyId] = useState<string | null>(null)
-  const [spotifyAvatar, setSpotifyAvatar] = useState<string | null>(null)
+  const [user, setUser] = useState<SelfUser | null>(null)
   const location = useLocation()
 
+  // Hydrate auth state from the cookie session (null if not logged in).
   useEffect(() => {
-    const syncAuth = () => {
-      setSpotifyId(localStorage.getItem('spotifyId'))
-      setSpotifyAvatar(localStorage.getItem('spotifyAvatar'))
-    }
-
-    syncAuth()
-    window.addEventListener('authChange', syncAuth)
-    window.addEventListener('storage', syncAuth)
-    return () => {
-      window.removeEventListener('authChange', syncAuth)
-      window.removeEventListener('storage', syncAuth)
-    }
+    auth.me().then(setUser).catch(() => setUser(null))
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem('spotifyId')
-    localStorage.removeItem('spotifyAvatar')
-    setSpotifyId(null)
-    setSpotifyAvatar(null)
-    window.dispatchEvent(new Event('authChange'))
-    window.location.href = '/profile'
+    auth.logout().then(() => setUser(null))
   }
 
   return (
@@ -71,26 +56,15 @@ export default function Layout() {
           </Title>
 
           <Group style={{ flex: 1 }} justify="flex-end" gap="sm" wrap="nowrap">
-            {spotifyId ? (
+            {user ? (
               <>
-                <Avatar src={spotifyAvatar || undefined} radius="xl" size={32} />
-                <Button
-                  variant="filled"
-                  size="xs"
-                  color="dark"
-                  onClick={handleLogout}
-                >
+                <Avatar src={user.pfp || undefined} radius="xl" size={32} />
+                <Button variant="filled" size="xs" color="dark" onClick={handleLogout}>
                   Logout
                 </Button>
               </>
             ) : (
-              <Button
-                variant="filled"
-                size="xs"
-                color="dark"
-                component="a"
-                href="http://localhost:5001/auth/login"
-              >
+              <Button variant="filled" size="xs" color="dark" onClick={() => auth.login()}>
                 Login with Spotify
               </Button>
             )}

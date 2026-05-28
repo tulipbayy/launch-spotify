@@ -1,0 +1,123 @@
+.top-artists-page {
+  background-color: #EBE2B8;
+  margin: -16px;
+  padding: 48px 32px;
+  box-sizing: border-box;
+}
+
+.top-artists-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto 40px auto;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.top-artists-title.top-artists-title {
+  font-weight: 700;
+  color: #011A27;
+  margin: 0;
+  text-align: left;
+  font-size: 3rem;
+}
+
+.top-artists-filter.top-artists-filter {
+  background-color: #FDBF49;
+  color: #011A27;
+  font-weight: 600;
+  text-transform: none;
+  border-radius: 999px;
+  padding: 8px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.top-artists-filter.top-artists-filter:hover {
+  background-color: #f5b439;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+}
+
+.top-artists-filter-menu.top-artists-filter-menu {
+  background-color: #FDBF49;
+  color: #011A27;
+  border: none;
+  border-radius: 12px;
+}
+
+.top-artists-filter-menu .mantine-Menu-item {
+  font-weight: 500;
+  color: #011A27;
+  background-color: transparent;
+}
+
+.top-artists-filter-menu .mantine-Menu-item:hover,
+.top-artists-filter-menu .mantine-Menu-item[data-active] {
+  background-color: rgba(1, 26, 39, 0.12);
+}
+
+.top-artists-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (min-width: 600px) {
+  .top-artists-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .top-artists-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.artist-card.artist-card {
+  background-color: #FDBF49;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.artist-card.artist-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.artist-card-content.artist-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 56px 28px;
+  position: relative;
+}
+
+.artist-rank.artist-rank {
+  font-weight: 800;
+  color: #011A27;
+  line-height: 1;
+  margin: 0;
+  font-size: 2rem;
+  position: absolute;
+  top: 16px;
+  left: 20px;
+}
+
+.artist-avatar.artist-avatar {
+  width: 160px;
+  height: 160px;
+  background-color: #011A27;
+}
+
+.artist-name.artist-name {
+  font-weight: 600;
+  color: #011A27;
+  text-align: center;
+  margin: 0;
+  font-size: 1.5rem;
+}

@@ -1,9 +1,7 @@
 .detail-page {
-  min-height: 100vh;
-  background: #121212;
   padding: 2rem;
   font-family: sans-serif;
-  color: #fff;
+  color: #111;
 }
 
 .detail-container {
@@ -14,7 +12,7 @@
 .detail-back {
   background: transparent;
   border: none;
-  color: #aaa;
+  color: #666;
   cursor: pointer;
   font-size: 14px;
   padding: 0;
@@ -25,36 +23,36 @@
 }
 
 .detail-back:hover {
-  color: #fff;
+  color: #111;
 }
 
 .detail-title {
   font-size: 28px;
   font-weight: 700;
-  color: #fff;
+  color: #111;
   margin: 0 0 2rem 0;
 }
 
 .post-form {
   padding: 1.5rem 0;
   margin-bottom: 1rem;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid #ddd;
 }
 
 .post-form h3 {
   margin: 0 0 10px 0;
   font-size: 15px;
   font-weight: 500;
-  color: #fff;
+  color: #111;
 }
 
 .post-textarea {
   width: 100%;
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #1a1a1a;
-  color: #fff;
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  color: #111;
   margin-bottom: 10px;
   box-sizing: border-box;
   resize: vertical;
@@ -64,13 +62,13 @@
 
 .post-textarea:focus {
   outline: none;
-  border-color: #444;
+  border-color: #aaa;
 }
 
 .btn-primary {
   background: transparent;
-  color: #fff;
-  border: 1px solid #444;
+  color: #111;
+  border: 1px solid #bbb;
   border-radius: 6px;
   padding: 8px 16px;
   cursor: pointer;
@@ -79,7 +77,7 @@
 }
 
 .btn-primary:hover {
-  border-color: #fff;
+  border-color: #111;
 }
 
 .post-list {
@@ -96,14 +94,14 @@
 }
 
 .post-card:hover {
-  background: #1a1a1a;
+  background: #f0f0f0;
 }
 
 .post-content {
   margin: 0 0 10px 0;
   font-size: 15px;
   line-height: 1.5;
-  color: #fff;
+  color: #111;
 }
 
 .post-footer {
@@ -114,7 +112,7 @@
 
 .post-author {
   font-size: 13px;
-  color: #aaa;
+  color: #666;
 }
 
 .btn-like {
@@ -127,18 +125,18 @@
 }
 
 .btn-like.liked {
-  color: #fff;
+  color: #111;
 }
 
 .btn-like.unliked {
-  color: #aaa;
+  color: #666;
 }
 
 .btn-like:hover {
-  color: #fff;
+  color: #111;
 }
 
 .detail-empty {
   font-size: 14px;
-  color: #aaa;
+  color: #666;
 }

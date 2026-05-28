@@ -1,0 +1,189 @@
+.top-songs-page {
+  background-color: #EBE2B8;
+  margin: -16px;
+  padding: 48px 32px;
+  box-sizing: border-box;
+}
+
+.top-songs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.top-songs-title {
+  font-weight: 700;
+  color: #011A27;
+  margin: 0;
+  text-align: left;
+  font-size: 3rem;
+}
+
+/* reuse the Top Artists filter look */
+.top-songs-filter.top-songs-filter {
+  background-color: #FDBF49;
+  color: #011A27;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 8px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.top-songs-filter.top-songs-filter:hover {
+  background-color: #f5b439;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+}
+
+.top-songs-filter-menu.top-songs-filter-menu {
+  background-color: #FDBF49;
+  color: #011A27;
+  border: none;
+  border-radius: 12px;
+}
+
+.top-songs-filter-menu .mantine-Menu-item {
+  font-weight: 500;
+  color: #011A27;
+  background-color: transparent;
+}
+
+.top-songs-filter-menu .mantine-Menu-item:hover,
+.top-songs-filter-menu .mantine-Menu-item[data-active] {
+  background-color: rgba(1, 26, 39, 0.12);
+}
+
+.top-songs-list {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* shared row */
+.song-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  color: #011A27;
+  transition: background-color 0.12s ease;
+}
+
+.song-row:hover {
+  background-color: rgba(1, 26, 39, 0.08);
+}
+
+.song-rank {
+  font-weight: 800;
+  font-size: 1.25rem;
+  width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.song-cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+  background-color: #011A27;
+  flex-shrink: 0;
+}
+
+.song-cover-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #EBE2B8;
+  font-size: 1.1rem;
+}
+
+.song-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex-grow: 1;
+}
+
+.song-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-artists {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.song-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #F77F00; /* Spotify green */
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: background-color 0.12s ease, transform 0.12s ease;
+}
+
+.song-play:hover {
+  background-color: rgb(228, 122, 7);
+  transform: scale(1.04);
+}
+
+/* #1 hero row */
+.song-row-hero {
+  background-color: #FDBF49;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  gap: 24px;
+  margin-bottom: 8px;
+}
+
+.song-row-hero:hover {
+  background-color: #f5b439;
+}
+
+.song-row-hero .song-rank {
+  font-size: 2.5rem;
+  width: 56px;
+}
+
+.song-row-hero .song-cover {
+  width: 120px;
+  height: 120px;
+  border-radius: 10px;
+}
+
+.song-row-hero .song-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  white-space: normal;
+}
+
+.song-row-hero .song-artists {
+  font-size: 1.05rem;
+}

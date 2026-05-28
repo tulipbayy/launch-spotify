@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { spotify, ApiError, type Track } from '../lib/api'
 import './LikedSongsPage.css'
 
-// Liked songs via the modular backend (lib/api -> /api/spotify/liked, cookie session).
 export default function LikedSongsPage() {
   const [tracks, setTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setLoading(true)
     spotify
       .liked(50, 0)
       .then((r) => setTracks(r.items))
@@ -66,10 +64,11 @@ export default function LikedSongsPage() {
               </div>
               {track.externalUrl && (
                 <a
-                  className="track-link"
+                  className="track-duration"
                   href={track.externalUrl}
                   target="_blank"
                   rel="noreferrer"
+                  style={{ textDecoration: 'none' }}
                 >
                   ▶
                 </a>

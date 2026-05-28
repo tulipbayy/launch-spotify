@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { forums, ApiError, type Post } from '../lib/api'
 import './ForumDetailPage.css'
 
-// Forum detail (posts) via the modular backend (lib/api, cookie session).
 export default function ForumDetailPage() {
   const { id } = useParams()
   const [posts, setPosts] = useState<Post[]>([])
@@ -41,9 +40,7 @@ export default function ForumDetailPage() {
       .likePost(id, postId)
       .then((r) =>
         setPosts((prev) =>
-          prev.map((p) =>
-            p.id === postId ? { ...p, liked: r.liked, likes: r.likes } : p
-          )
+          prev.map((p) => (p.id === postId ? { ...p, liked: r.liked, likes: r.likes } : p))
         )
       )
       .catch(fail)

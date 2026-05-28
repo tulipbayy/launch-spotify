@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { forums, ApiError, type Forum } from '../lib/api'
 import './ForumPage.css'
 
-// Forum list/search/create via the modular backend (lib/api -> /api/forums,
-// cookie session). Author is derived server-side from the session.
 export default function ForumPage() {
   const [list, setList] = useState<Forum[]>([])
   const [search, setSearch] = useState('')

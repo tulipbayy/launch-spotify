@@ -1,46 +1,68 @@
 import { useEffect, useState } from 'react'
+import { Card, Avatar, Button, Menu } from '@mantine/core'
 import { spotify, ApiError, type Artist, type RangeKey } from '../lib/api'
+import './TopArtistsPage.css'
 
-// TEMPORARY data-dump page (no CSS) with a range filter.
-const RANGES: RangeKey[] = ['all_time', 'six_months', 'one_month']
+const FILTERS: { label: string; range: RangeKey }[] = [
+  { label: 'All Time', range: 'all_time' },
+  { label: 'Last 6 Months', range: 'six_months' },
+  { label: 'Last Month', range: 'one_month' },
+]
+
+function ArtistCard({ rank, artist }: { rank: number; artist: Artist }) {
+  return (
+    <Card className="artist-card" radius="lg" padding={0}>
+      <div className="artist-card-content">
+        <span className="artist-rank">#{rank}</span>
+        <Avatar className="artist-avatar" radius="50%" src={artist.images[0]?.url} />
+        <span className="artist-name">{artist.name}</span>
+      </div>
+    </Card>
+  )
+}
 
 export default function TopArtistsPage() {
-  const [range, setRange] = useState<RangeKey>('all_time')
-  const [items, setItems] = useState<Artist[]>([])
+  const [filter, setFilter] = useState(FILTERS[0])
+  const [artists, setArtists] = useState<Artist[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setLoading(true)
     setError(null)
     spotify
-      .topArtists(range)
-      .then((r) => setItems(r.items))
+      .topArtists(filter.range)
+      .then((r) => setArtists(r.items))
       .catch((e) =>
         setError(e instanceof ApiError ? `${e.status} ${e.message} (${e.code})` : String(e))
       )
-      .finally(() => setLoading(false))
-  }, [range])
+  }, [filter])
 
   return (
-    <div>
-      <h2>Top Artists ({range})</h2>
-      <div>
-        {RANGES.map((r) => (
-          <button key={r} onClick={() => setRange(r)} disabled={r === range} style={{ marginRight: 8 }}>
-            {r}
-          </button>
+    <div className="top-artists-page">
+      <div className="top-artists-header">
+        <h1 className="top-artists-title">Top Artists</h1>
+        <Menu position="bottom-end" radius="md">
+          <Menu.Target>
+            <Button className="top-artists-filter">{filter.label} ▾</Button>
+          </Menu.Target>
+          <Menu.Dropdown className="top-artists-filter-menu">
+            {FILTERS.map((f) => (
+              <Menu.Item
+                key={f.range}
+                onClick={() => setFilter(f)}
+                data-active={f.range === filter.range || undefined}
+              >
+                {f.label}
+              </Menu.Item>
+            ))}
+          </Menu.Dropdown>
+        </Menu>
+      </div>
+      {error && <p style={{ color: '#b00' }}>Error: {error}</p>}
+      <div className="top-artists-grid">
+        {artists.map((artist, i) => (
+          <ArtistCard key={artist.id} rank={i + 1} artist={artist} />
         ))}
       </div>
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-      <ol>
-        {items.map((a) => (
-          <li key={a.id}>
-            {a.name} {a.genres.length ? `[${a.genres.join(', ')}]` : ''}
-          </li>
-        ))}
-      </ol>
     </div>
   )
 }
