@@ -7,20 +7,52 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const usersRef = db.collection('users');
-        const snapShot = await usersRef.where('isPrivate', '==', false).get();
+        const snapshot = await usersRef.where('isPrivate', '==', false).get();
 
-        const usersList = [];
-        snapShot.forEach(doc => {
+        const usersPromises = snapshot.docs.map(async (doc) => {
             const data = doc.data();
-            usersList.push({
-                id: doc.id,
-                username: data.username,
-                color: '#1b3b5a', //temporary
-                topArtist: { name: "Mystery Artist", imageUrl: "https://i.pravatar.cc/150" },
-                topSong: { name: "Mystery Song", imageUrl: "https://i.pravatar.cc/150" }
-            });
-        });
+            
+            // for dates
+            const rawDate = data.createdAt || data.dateCreated || new Date().toISOString();
+            // because Firebase has its own weird timestamp
+            const finalJoinDate = typeof rawDate.toDate === 'function' 
+                ? rawDate.toDate().toISOString() 
+                : rawDate;
+            
+            // fetch artist data
+            const topArtistId = (data.displayedArtistIds && data.displayedArtistIds.length > 0) 
+                ? data.displayedArtistIds[0] : 'default_artist_id';
 
+            const artistDoc = await db.collection('artists').doc(topArtistId).get();
+            const artistData = artistDoc.exists ? artistDoc.data() : {};
+
+            // fetch song data
+            const topSongId = (data.displayedSongIds && data.displayedSongIds.length > 0) 
+                ? data.displayedSongIds[0] : 'default_song_id';
+                
+            const songDoc = await db.collection('songs').doc(topSongId).get();
+            const songData = songDoc.exists ? songDoc.data() : {};
+            
+            return {
+                id: doc.id,
+                displayName: data.displayName || 'Unknown User',
+                bio: data.bio || '',
+                pfp: data.pfp || '',
+                joinDate: finalJoinDate,
+                
+                topArtist: { 
+                    name: artistData.name || "Drake", 
+                    imageUrl: artistData.picture || "https://i.scdn.co/image/ab6761610000e5eb4293385d324db8558179afd9" 
+                },
+                topSong: { 
+                    name: songData.title || "Janice S**U", 
+                    imageUrl: songData.picture || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTljq0VODGLfbBRkSP9o8d9jIjROYEZcKnIpQ&s" 
+                }
+            };
+        });
+        // 2. Wait for all the database lookups to finish
+        const usersList = await Promise.all(usersPromises);
+        // 3. Send the fully loaded users to React!
         return res.status(200).json(usersList);
     } catch (error) {
         console.error('Error fetching users:', error);

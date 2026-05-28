@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/DiscoverPage.css';
 
 interface User {
   id: string;
-  username: string;
+  displayName: string;
+  bio: string;
+  pfp: string;
   color: string;
   joinDate: string;
   topArtist: {
@@ -16,53 +19,12 @@ interface User {
   };
 }
 
-// const MOCK_USERS: User[] = [
-//   { 
-//     id: "1", 
-//     username: "hugeDrakeFan123", 
-//     color: "#1b3b5a", 
-//     joinDate: "May 2026",
-//     topArtist: { name: "Drake", imageUrl: "https://i.scdn.co/image/ab6761610000e5eb4293385d324db8558179afd9" },
-//     topSong: { name: "Janice ST*U", imageUrl: "https://i.scdn.co/image/ab67616d0000b2734f19b8bd4f31c238b97561f2" }
-//   },
-//   { 
-//     id: "2", 
-//     username: "user123", 
-//     color: "#fbbd5c", 
-//     joinDate: "Jan 2026",
-//     topArtist: { name: "Taylor Swift", imageUrl: "https://i.scdn.co/image/ab6761610000e5eb5a00969a4698c3132a15fbb0" },
-//     topSong: { name: "Anti-Hero", imageUrl: "https://i.scdn.co/image/ab67616d0000b273bb54dde15cdb199d631ffdb0" }
-//   },
-//   { 
-//     id: "3", 
-//     username: "user097", 
-//     color: "#da3b3a", 
-//     joinDate: "Mar 2026",
-//     topArtist: { name: "Skrillex", imageUrl: "https://i.scdn.co/image/ab6761610000e5eb98f8287661b16c141029c7d4" },
-//     topSong: { name: "Rumble", imageUrl: "https://i.scdn.co/image/ab67616d0000b273b40097f4fbd13532f83196ed" }
-//   },
-//   { 
-//     id: "4", 
-//     username: "user675", 
-//     color: "#f17f16", 
-//     joinDate: "Feb 2026",
-//     topArtist: { name: "Miles Davis", imageUrl: "https://i.scdn.co/image/ab6761610000e5ebeb94156b85d33a90ad11f9d5" },
-//     topSong: { name: "So What", imageUrl: "https://i.scdn.co/image/ab67616d0000b27318ff2ea34ddbe95904deedee" }
-//   },
-//   { 
-//     id: "5", 
-//     username: "user456", 
-//     color: "#1b3b5a", 
-//     joinDate: "Apr 2026",
-//     topArtist: { name: "The Weeknd", imageUrl: "https://i.scdn.co/image/ab6761610000e5eb214f3cf1cbe7139c1e26ffbb" },
-//     topSong: { name: "Blinding Lights", imageUrl: "https://i.scdn.co/image/ab67616d0000b2738863bc11d2aa12b54f5aeb36" }
-//   },
-// ];
-
 export default function DiscoverPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [sortOrder, setSortOrder] = useState<string>('newest');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchUsers() {
@@ -121,10 +83,9 @@ export default function DiscoverPage() {
 
           <div className="featured-info">
             <h3>Your Top User</h3>
-            <p className="username-text">{featuredUser.username}</p>
+            <p className="username-text">{featuredUser.displayName}</p>
             <div className="action-buttons">
-              <button>✉️ Message</button>
-              <button className="add-btn">⊕ Add User</button>
+              <button onClick={() => navigate(`/inbox?userId=${featuredUser.id}`)}>✉️ Message</button>
             </div>
           </div>
       </div>
@@ -155,11 +116,10 @@ export default function DiscoverPage() {
                   <div className="avatar-circle"></div>
               </div>
 
-              <p className="username-text">{user.username}</p>
+              <p className="username-text">{user.displayName}</p>
 
               <div className="action-buttons small">
                 <button>✉️ Message</button>
-                <button className="add-btn">⊕ Add User</button>
               </div>
             </div>
           ))}
@@ -174,8 +134,8 @@ export default function DiscoverPage() {
             <div className="modal-header">
               <div className="modal-avatar"></div>
               <div className="modal-title">
-                <h2>{selectedUser.username}</h2>
-                <p>Profile Created: {selectedUser.joinDate}</p>
+                <h2>{selectedUser.displayName}</h2>
+                <p>Profile Created: {new Date(selectedUser.joinDate).toLocaleString('default', { month: 'short', year: 'numeric' })}</p>
               </div>
             </div>
 
@@ -195,9 +155,8 @@ export default function DiscoverPage() {
               </div>
 
               <div className="modal-actions">
-                <button>👤 View Profile</button>
-                <button>✉️ Message</button>
-                <button className="add-btn">⊕ Add User</button>
+                <button onClick={() => navigate(`/profile?userId=${selectedUser.id}`)}>👤 View Profile</button>
+                <button onClick={() => navigate(`/inbox?userId=${selectedUser.id}`)}>✉️ Message</button>
               </div>
             </div>
           </div>

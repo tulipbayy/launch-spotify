@@ -223,12 +223,21 @@ router.get('/spotify/callback', async (req, res) => {
 
     const userData = {
         spotifyId: profile.id,
-        username: profile.display_name || profile.id,
+        displayName: profile.display_name || profile.id,
         email: profile.email || '',
         isPrivate: false,
-        biography: '',
-        profilePhoto: profile.images?.[0]?.url || '',
+        bio: '',
+        pfp: profile.images?.[0]?.url || '',
+        displayedArtistIds: ['default_artist_id'],
+        displayedSongIds: ['default_song_id']
     };
+
+    const userRef = db.collection('users').doc(profile.id);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      userData.createdAt = new Date().toISOString(); 
+    }
 
     await db.collection('users').doc(profile.id).set(userData, { merge: true });
 
