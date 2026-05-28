@@ -30,7 +30,7 @@ const navItems = [
 ]
 
 export default function Layout() {
-  const [opened, { open, close }] = useDisclosure(false)
+  const [opened, { toggle, close }] = useDisclosure(false)
   const [user, setUser] = useState<SelfUser | null>(null)
   const location = useLocation()
 
@@ -48,7 +48,14 @@ export default function Layout() {
       <AppShell.Header style={{ backgroundColor: TOP_BAR_COLOR, border: 'none' }}>
         <Group h="100%" px="md" justify="space-between" wrap="nowrap">
           <Group style={{ flex: 1 }} justify="flex-start">
-            <Burger opened={opened} onClick={open} color="white" aria-label="open sidebar" />
+            <Burger
+              opened={opened}
+              onClick={toggle}
+              color="white"
+              aria-label="open sidebar"
+              size={18}
+              transitionDuration={0}
+            />
           </Group>
 
           <Title order={4} c="white" fw={600} style={{ letterSpacing: '0.5px' }}>
