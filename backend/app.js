@@ -571,8 +571,6 @@ app.get("/api/spotify/search", async (req, res) => {
   }
 });
 
-// --- Batch fetch display names by userId array ---
-// POST /api/profiles/batch  { userIds: ["id1","id2",...] }
 app.post("/api/profiles/batch", async (req, res) => {
   try {
     const { userIds } = req.body;
@@ -596,9 +594,6 @@ app.post("/api/profiles/batch", async (req, res) => {
   }
 });
 
-// --- Replies ---
-
-// GET replies for a post
 app.get("/api/posts/:id/replies", async (req, res) => {
   try {
     const q = query(
@@ -619,7 +614,6 @@ app.get("/api/posts/:id/replies", async (req, res) => {
   }
 });
 
-// POST a reply to a post
 app.post("/api/posts/:id/replies", async (req, res) => {
   try {
     const { text, createdBy } = req.body;
@@ -644,7 +638,6 @@ app.post("/api/posts/:id/replies", async (req, res) => {
   }
 });
 
-// DELETE a reply
 app.delete("/api/posts/:postId/replies/:replyId", async (req, res) => {
   try {
     await deleteDoc(

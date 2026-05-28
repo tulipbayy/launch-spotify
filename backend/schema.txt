@@ -1,0 +1,49 @@
+users {
+    spotifyId:          string       // also the document ID
+    displayName:        string
+    bio:                string
+    email:              string
+    pfp:                string        // avatar URL
+    isPrivate:          boolean
+    displayedArtistIds: string[]      // Spotify artist IDs (looked up via API)
+    displayedSongIds:   string[]      // Spotify track IDs (looked up via API)
+
+    // server-only: Spotify OAuth tokens, never sent to the client.
+    accessToken:        string
+    refreshToken:       string
+    tokenExpiresAt:     number        // epoch ms
+    scope:              string
+}
+
+conversations {                       // document ID, both user IDs sorted + joined: "userA__userB"
+    participantIds:     string[]      // the two users
+    participantNames:   map           // { userId: displayName } — for showing names cheaply
+    lastMessage:        string
+    lastMessageAt:      timestamp
+    lastSenderId:       string
+}
+
+messages {                            // subcollection: conversations/{id}/messages
+    senderId:           string
+    text:               string
+    timestamp:          timestamp
+}
+
+forums {
+    name:               string
+    nameLower:          string        // lowercased name, for case-insensitive search
+    description:        string
+    createdBy:          string        // user ID
+    createdByName:      string        // denormalized, for display
+    postCount:          number
+    createdAt:          timestamp
+}
+
+posts {                               // subcollection: forums/{id}/posts
+    authorId:           string        // user ID
+    authorName:         string        // denormalized, for display
+    content:            string
+    likedBy:            string[]      // user IDs
+    likes:              number
+    createdAt:          timestamp
+}

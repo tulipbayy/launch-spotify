@@ -1,93 +1,82 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/DiscoverPage.css';
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { discover, type PublicUser, type Artist, type Track } from '../lib/api'
+import '../styles/DiscoverPage.css'
 
-interface User {
-  id: string;
-  displayName: string;
-  bio: string;
-  pfp: string;
-  color: string;
-  joinDate: string;
-  topArtist: {
-    name: string;
-    imageUrl: string;
-  };
-  topSong: {
-    name: string;
-    imageUrl: string;
-  };
+const BRAND_COLORS = ['#1b3b5a', '#fbbd5c', '#da3b3a', '#f17f16', '#8fa0a8']
+
+interface CardUser extends PublicUser {
+  color: string
+}
+
+interface SelectedDetail {
+  user: PublicUser
+  topArtist: Artist | null
+  topSong: Track | null
 }
 
 export default function DiscoverPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [sortOrder, setSortOrder] = useState<string>('newest');
-
-  const navigate = useNavigate();
+  const [users, setUsers] = useState<CardUser[]>([])
+  const [selected, setSelected] = useState<SelectedDetail | null>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    async function fetchUsers() {
-      try {
-        const response = await fetch('http://localhost:5001/users');
-        const realData = await response.json();
-        const BRAND_COLORS = ["#1b3b5a", "#fbbd5c", "#da3b3a", "#f17f16", "#8fa0a8"];
-        const usersWithColors = realData.map((u: User, index: number) => {
-          return {
-            ...u,
-            color: BRAND_COLORS[index % BRAND_COLORS.length]
-          };
-        });
+    discover
+      .list()
+      .then((r) => {
+        setUsers(
+          r.users.map((u, i) => ({ ...u, color: BRAND_COLORS[i % BRAND_COLORS.length] }))
+        )
+      })
+      .catch((e) => console.error('failed to get users:', e))
+  }, [])
 
-        setUsers(usersWithColors);
-      } catch (error) {
-        console.error("failed to get users: ", error);
-      }
-    }
-
-    fetchUsers();
-  }, []);
-
-  if (users.length === 0) {
-    return <div className="discover-container">
-        <h2>Loading users...</h2>
-      </div>;
+  // Load a user's hydrated top artist/song for the modal.
+  const openUser = (user: PublicUser) => {
+    setSelected({ user, topArtist: null, topSong: null })
+    discover
+      .getOne(user.id)
+      .then((r) =>
+        setSelected({
+          user: r.user,
+          topArtist: r.displayedArtists[0] || null,
+          topSong: r.displayedSongs[0] || null,
+        })
+      )
+      .catch((e) => console.error('failed to load user:', e))
   }
 
-  const featuredUser = users[0];
-  const moreUsers = users.slice(1);
+  if (users.length === 0) {
+    return (
+      <div className="discover-container">
+        <h2>Loading users...</h2>
+      </div>
+    )
+  }
 
-  const sortedMoreUsers = [...moreUsers].sort((a, b) => {
-    const dateA = new Date(a.joinDate).getTime();
-    const dateB = new Date(b.joinDate).getTime();
-
-    if (sortOrder === 'newest') {
-      return dateB - dateA;
-    } else {
-      return dateA - dateB;
-    }
-  })
+  const featuredUser = users[0]
+  const moreUsers = users.slice(1)
 
   return (
     <div className="discover-container">
       <h2>Discover users</h2>
-      
+
       <div className="featured-section">
         <div
           className="featured-avatar-block clickable"
           style={{ backgroundColor: featuredUser.color }}
-          onClick={() => setSelectedUser(featuredUser)}
-          >
-            <div className="avatar-circle"></div>
-          </div>
+          onClick={() => openUser(featuredUser)}
+        >
+          <div className="avatar-circle"></div>
+        </div>
 
-          <div className="featured-info">
-            <h3>Your Top User</h3>
-            <p className="username-text">{featuredUser.displayName}</p>
-            <div className="action-buttons">
-              <button onClick={() => navigate(`/inbox?userId=${featuredUser.id}`)}>✉️ Message</button>
-            </div>
+        <div className="featured-info">
+          <h3>Your Top User</h3>
+          <p className="username-text">{featuredUser.displayName}</p>
+          <div className="action-buttons">
+            <button onClick={() => navigate(`/inbox?userId=${featuredUser.id}`)}>✉️ Message</button>
           </div>
+        </div>
       </div>
 
       <hr className="divider" />
@@ -95,47 +84,41 @@ export default function DiscoverPage() {
       <div className="more-users-section">
         <div className="more-users-header">
           <h3>More Users</h3>
-           <select 
-            className="filter-dropdown"
-            value={sortOrder} 
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="newest">Filter By: Newest</option>
-            <option value="oldest">Filter By: Oldest</option>
-          </select>
         </div>
 
         <div className="users-grid">
-          {sortedMoreUsers.map((user) => (
+          {moreUsers.map((user) => (
             <div key={user.id} className="small-user-card">
               <div
                 className="small-avatar-block clickable"
                 style={{ backgroundColor: user.color }}
-                onClick={() => setSelectedUser(user)}
-                >
-                  <div className="avatar-circle"></div>
+                onClick={() => openUser(user)}
+              >
+                <div className="avatar-circle"></div>
               </div>
 
               <p className="username-text">{user.displayName}</p>
 
               <div className="action-buttons small">
-                <button>✉️ Message</button>
+                <button onClick={() => navigate(`/inbox?userId=${user.id}`)}>✉️ Message</button>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {selectedUser && (
-        <div className="modal-overlay" onClick={() => setSelectedUser(null)}>
+      {selected && (
+        <div className="modal-overlay" onClick={() => setSelected(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setSelectedUser(null)}>⊗</button>
-            
+            <button className="close-btn" onClick={() => setSelected(null)}>
+              ⊗
+            </button>
+
             <div className="modal-header">
               <div className="modal-avatar"></div>
               <div className="modal-title">
-                <h2>{selectedUser.displayName}</h2>
-                <p>Profile Created: {new Date(selectedUser.joinDate).toLocaleString('default', { month: 'short', year: 'numeric' })}</p>
+                <h2>{selected.user.displayName}</h2>
+                <p>{selected.user.bio}</p>
               </div>
             </div>
 
@@ -143,25 +126,44 @@ export default function DiscoverPage() {
               <div className="modal-music">
                 <div className="music-item">
                   <span className="music-label">Top Artist</span>
-                  <img src={selectedUser.topArtist.imageUrl} alt={selectedUser.topArtist.name} />
-                  <p>{selectedUser.topArtist.name}</p>
+                  {selected.topArtist ? (
+                    <>
+                      <img
+                        src={selected.topArtist.images[0]?.url}
+                        alt={selected.topArtist.name}
+                      />
+                      <p>{selected.topArtist.name}</p>
+                    </>
+                  ) : (
+                    <p>—</p>
+                  )}
                 </div>
 
                 <div className="music-item">
                   <span className="music-label">Top Song</span>
-                  <img src={selectedUser.topSong.imageUrl} alt={selectedUser.topSong.name} />
-                  <p>{selectedUser.topSong.name}</p>
+                  {selected.topSong ? (
+                    <>
+                      <img
+                        src={selected.topSong.album.images[0]?.url}
+                        alt={selected.topSong.name}
+                      />
+                      <p>{selected.topSong.name}</p>
+                    </>
+                  ) : (
+                    <p>—</p>
+                  )}
                 </div>
               </div>
 
               <div className="modal-actions">
-                <button onClick={() => navigate(`/profile?userId=${selectedUser.id}`)}>👤 View Profile</button>
-                <button onClick={() => navigate(`/inbox?userId=${selectedUser.id}`)}>✉️ Message</button>
+                <button onClick={() => navigate(`/inbox?userId=${selected.user.id}`)}>
+                  ✉️ Message
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }
