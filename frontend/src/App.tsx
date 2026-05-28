@@ -1,4 +1,6 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useContext } from "react";
+import { AuthContext } from "./contexts/AuthContext";
 import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import LikedSongsPage from "./pages/LikedSongsPage";
@@ -9,6 +11,35 @@ import DiscoverPage from "./pages/DiscoverPage";
 import InboxPage from "./pages/InboxPage";
 import ForumPage from "./pages/ForumPage";
 import ForumDetailPage from "./pages/ForumDetailPage";
+
+
+// Temporary just to test auth
+function SpotifyCallback() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const { login } = useContext(AuthContext);
+
+  useEffect(() => {
+    const encodedUser = searchParams.get('user');
+    if (encodedUser) {
+      // Decode the Base64 string back into a normal JSON string
+      const decodedString = atob(encodedUser);
+      // Parse it into a Javascript object
+      const userData = JSON.parse(decodedString);
+
+      login(userData);
+      
+      console.log("Logged in as:", userData);
+      alert(`Welcome, ${userData.username}!`);
+      
+      // Send them to the home page now that we have their data
+      navigate('/'); 
+    }
+  }, [searchParams, navigate, login]);
+  
+  return <div>Logging you in...</div>;
+}
 
 export default function App() {
   const params = new URLSearchParams(window.location.search);
@@ -21,6 +52,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
+          <Route path="/spotify/callback" element={<SpotifyCallback />} /> {/*temporary*/}
           <Route path="/" element={<HomePage />} />
           <Route path="/liked" element={<LikedSongsPage />} />
           <Route path="/top-artists" element={<TopArtistsPage />} />

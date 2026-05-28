@@ -139,6 +139,7 @@ app.get("/auth/callback", async (req, res) => {
           email: me.email,
           topArtists,
           topSongs,
+          isPublic,
         },
         { merge: true }
       );
@@ -362,6 +363,10 @@ app.post("/api/posts/:id/like", async (req, res) => {
   }
   res.json({ success: true });
 });
+
+const usersRouter = require("./routes/users.js");
+
+app.use("/users", usersRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
