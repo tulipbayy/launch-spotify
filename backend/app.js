@@ -17,12 +17,14 @@ const {
   arrayRemove,
 } = require("firebase/firestore");
 const db = require("./firebase");
+const messagesRouter = require("./routes/messages");
 
 const app = express();
 const port = 5001;
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/messages", messagesRouter);
 
 app.get("/", (req, res) => {
   res.send("SpotSocial backend is running.");
