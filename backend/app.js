@@ -17,11 +17,14 @@ const {
   arrayRemove,
 } = require("firebase/firestore");
 const db = require("./firebase");
+const messagesRouter = require("./routes/messages");
+
 const app = express();
 const port = 5001;
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/messages", messagesRouter);
 
 app.get("/", (req, res) => {
   res.send("SpotSocial backend is running.");
@@ -145,7 +148,9 @@ app.get("/auth/callback", async (req, res) => {
     }
 
     return res.redirect(
-      `${FRONTEND_URL}/profile?spotifyId=${encodeURIComponent(spotifyId)}`
+      `${FRONTEND_URL}/profile?spotifyId=${encodeURIComponent(
+        spotifyId
+      )}&accessToken=${tokenData.access_token}`
     );
   } catch (err) {
     console.error("Error in /auth/callback", err);
