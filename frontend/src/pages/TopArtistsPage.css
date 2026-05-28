@@ -38,17 +38,21 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
 }
 
-.top-artists-filter-menu .MuiPaper-root {
+.top-artists-filter-menu.top-artists-filter-menu {
   background-color: #FDBF49;
   color: #011A27;
+  border: none;
   border-radius: 12px;
 }
 
-.top-artists-filter-menu .MuiMenuItem-root {
+.top-artists-filter-menu .mantine-Menu-item {
   font-weight: 500;
+  color: #011A27;
+  background-color: transparent;
 }
 
-.top-artists-filter-menu .MuiMenuItem-root.Mui-selected {
+.top-artists-filter-menu .mantine-Menu-item:hover,
+.top-artists-filter-menu .mantine-Menu-item[data-active] {
   background-color: rgba(1, 26, 39, 0.12);
 }
 
