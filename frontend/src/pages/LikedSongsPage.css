@@ -9,13 +9,10 @@
 }
 
 .liked-page {
-  min-height: 100vh;
-  background: #121212;
   padding: 2rem;
   font-family: sans-serif;
-  color: #fff;
+  color: #0c0b0b;
 }
-
 .liked-header {
   margin-bottom: 2rem;
 }
@@ -23,13 +20,13 @@
 .liked-title {
   font-size: 28px;
   font-weight: 700;
-  color: #fff;
+  color: #0a0a0a;
   margin: 0 0 4px 0;
 }
 
 .liked-subtitle {
   font-size: 14px;
-  color: #aaa;
+  color: #9b9999;
   margin: 0;
 }
 
@@ -76,7 +73,7 @@
 .track-name {
   font-size: 15px;
   font-weight: 500;
-  color: #fff;
+  color: #000000;
   margin: 0 0 2px 0;
   white-space: nowrap;
   overflow: hidden;

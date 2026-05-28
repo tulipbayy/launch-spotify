@@ -13,7 +13,7 @@ export default function ForumDetailPage() {
   useEffect(() => {
     const fetchPosts = async () => {
       const response = await fetch(
-        `http://127.0.0.1:3001/api/forums/${id}/posts`
+        `http://127.0.0.1:5001/api/forums/${id}/posts`
       );
       const data = await response.json();
       setPosts(data);
@@ -25,7 +25,7 @@ export default function ForumDetailPage() {
   const createPost = async () => {
     if (!newPost.trim()) return;
     const response = await fetch(
-      `http://127.0.0.1:3001/api/forums/${id}/posts`,
+      `http://127.0.0.1:5001/api/forums/${id}/posts`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,7 +38,7 @@ export default function ForumDetailPage() {
   };
 
   const likePost = async (postId: string) => {
-    await fetch(`http://127.0.0.1:3001/api/posts/${postId}/like`, {
+    await fetch(`http://127.0.0.1:5001/api/posts/${postId}/like`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId }),

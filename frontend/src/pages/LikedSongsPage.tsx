@@ -16,7 +16,7 @@ export default function LikedSongsPage() {
 
     const fetchTracks = async () => {
       setLoading(true);
-      const response = await fetch("http://127.0.0.1:3001/api/liked-songs", {
+      const response = await fetch("http://127.0.0.1:5001/api/liked-songs", {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const data = await response.json();

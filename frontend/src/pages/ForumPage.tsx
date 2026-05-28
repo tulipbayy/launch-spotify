@@ -14,7 +14,7 @@ export default function ForumPage() {
 
   useEffect(() => {
     const fetchForums = async () => {
-      const response = await fetch("http://127.0.0.1:3001/api/forums");
+      const response = await fetch("http://127.0.0.1:5001/api/forums");
       const data = await response.json();
       setForums(data);
       setLoading(false);
@@ -24,7 +24,7 @@ export default function ForumPage() {
 
   const createForum = async () => {
     if (!newForumName.trim()) return;
-    const response = await fetch("http://127.0.0.1:3001/api/forums", {
+    const response = await fetch("http://127.0.0.1:5001/api/forums", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
