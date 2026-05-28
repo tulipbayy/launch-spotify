@@ -1,19 +1,17 @@
-import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
+  AppShell,
+  Burger,
+  Group,
+  Title,
   Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Box,
+  NavLink,
   Avatar,
-} from '@mui/material'
-import MenuIcon from '@mui/icons-material/Menu'
+  Text,
+  Box,
+} from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
+import './Layout.css'
 
 const TOP_BAR_COLOR = '#011A27'
 const SIDEBAR_COLOR = '#003049'
@@ -30,82 +28,60 @@ const navItems = [
 ]
 
 export default function Layout() {
-  const [open, setOpen] = useState(false)
+  const [opened, { open, close }] = useDisclosure(false)
   const location = useLocation()
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="static" elevation={0} sx={{ backgroundColor: TOP_BAR_COLOR }}>
-        <Toolbar>
-          <Box sx={{ flex: 1, display: 'flex' }}>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open sidebar"
-              onClick={() => setOpen(true)}
-            >
-              <MenuIcon />
-            </IconButton>
-          </Box>
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 600, letterSpacing: '0.5px' }}
-          >
+    <AppShell header={{ height: 60 }} padding="md">
+      <AppShell.Header style={{ backgroundColor: TOP_BAR_COLOR, border: 'none' }}>
+        <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+          <Group style={{ flex: 1 }} justify="flex-start">
+            <Burger opened={false} onClick={open} color="white" aria-label="open sidebar" />
+          </Group>
+
+          <Title order={4} c="white" fw={600} style={{ letterSpacing: '0.5px' }}>
             Spotify App
-          </Typography>
-          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-            <Avatar sx={{ width: 32, height: 32 }} />
-          </Box>
-        </Toolbar>
-      </AppBar>
+          </Title>
+
+          <Group style={{ flex: 1 }} justify="flex-end" gap="sm" wrap="nowrap">
+            <Text c="white" size="sm" visibleFrom="xs">
+              username
+            </Text>
+            <Avatar radius="xl" size={32} />
+          </Group>
+        </Group>
+      </AppShell.Header>
 
       <Drawer
-        anchor="left"
-        open={open}
-        onClose={() => setOpen(false)}
-        slotProps={{
-          paper: {
-            sx: {
-              backgroundColor: SIDEBAR_COLOR,
-              color: '#fff',
-              width: 240,
-            },
-          },
-        }}
+        opened={opened}
+        onClose={close}
+        size={240}
+        withCloseButton={false}
+        padding={0}
+        styles={{ content: { backgroundColor: SIDEBAR_COLOR } }}
       >
-        <List>
-          {navItems.map((item) => {
-            const selected = location.pathname === item.path
-            return (
-              <ListItem key={item.path} disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to={item.path}
-                  selected={selected}
-                  onClick={() => setOpen(false)}
-                  sx={{
-                    '&.Mui-selected': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.16)',
-                    },
-                    '&.Mui-selected:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.24)',
-                    },
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    },
-                  }}
-                >
-                  <ListItemText primary={item.label} />
-                </ListItemButton>
-              </ListItem>
-            )
-          })}
-        </List>
+        <Box py="xs">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              component={Link}
+              to={item.path}
+              label={item.label}
+              active={location.pathname === item.path}
+              onClick={close}
+              className="sidebar-navlink"
+              styles={{
+                root: { color: '#fff' },
+                label: { fontSize: 'var(--mantine-font-size-md)' },
+              }}
+            />
+          ))}
+        </Box>
       </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, p: 2 }}>
+      <AppShell.Main>
         <Outlet />
-      </Box>
-    </Box>
+      </AppShell.Main>
+    </AppShell>
   )
 }
