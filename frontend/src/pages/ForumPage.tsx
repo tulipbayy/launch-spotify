@@ -1,110 +1,113 @@
-import { useEffect, useState } from 'react'
-import { forums, ApiError, type Forum, type Post } from '../lib/api'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { forums, ApiError, type Forum } from '../lib/api'
+import './ForumPage.css'
 
-// TEMPORARY data-dump page (no CSS). Exercises every forum/post endpoint:
-// list, search, create forum, list posts, create post, like post.
+// Forum list/search/create via the modular backend (lib/api -> /api/forums,
+// cookie session). Author is derived server-side from the session.
 export default function ForumPage() {
   const [list, setList] = useState<Forum[]>([])
   const [search, setSearch] = useState('')
-  const [newName, setNewName] = useState('')
-  const [newDesc, setNewDesc] = useState('')
-  const [active, setActive] = useState<Forum | null>(null)
-  const [posts, setPosts] = useState<Post[]>([])
-  const [postBody, setPostBody] = useState('')
+  const [newForumName, setNewForumName] = useState('')
+  const [newForumDesc, setNewForumDesc] = useState('')
+  const [showForm, setShowForm] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   const fail = (e: unknown) =>
     setError(e instanceof ApiError ? `${e.status} ${e.message} (${e.code})` : String(e))
 
-  const loadForums = (q = '') => forums.list(q).then((r) => setList(r.forums)).catch(fail)
-
   useEffect(() => {
-    loadForums()
+    forums
+      .list()
+      .then((r) => setList(r.forums))
+      .catch(fail)
+      .finally(() => setLoading(false))
   }, [])
 
   const createForum = () => {
-    if (!newName.trim()) return
+    if (!newForumName.trim()) return
     forums
-      .create(newName.trim(), newDesc.trim())
-      .then(() => {
-        setNewName('')
-        setNewDesc('')
-        return loadForums(search)
+      .create(newForumName.trim(), newForumDesc.trim())
+      .then((r) => {
+        setList((prev) => [...prev, r.forum])
+        setNewForumName('')
+        setNewForumDesc('')
+        setShowForm(false)
       })
       .catch(fail)
   }
 
-  const openForum = (f: Forum) => {
-    setError(null)
-    setActive(f)
-    forums.posts(f.id).then((r) => setPosts(r.posts)).catch(fail)
-  }
-
-  const createPost = () => {
-    if (!active || !postBody.trim()) return
-    forums
-      .createPost(active.id, postBody.trim())
-      .then(() => {
-        setPostBody('')
-        return forums.posts(active.id).then((r) => setPosts(r.posts))
-      })
-      .catch(fail)
-  }
-
-  const like = (postId: string) => {
-    if (!active) return
-    forums
-      .likePost(active.id, postId)
-      .then((r) =>
-        setPosts((prev) =>
-          prev.map((p) => (p.id === postId ? { ...p, liked: r.liked, likeCount: r.likeCount } : p))
-        )
-      )
-      .catch(fail)
-  }
+  const filteredForums = list.filter((f) =>
+    f.name.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
-    <div>
-      <h2>Forums</h2>
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-
-      <h3>Search</h3>
-      <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="forum name" />
-      <button onClick={() => loadForums(search)}>Search</button>
-      <button onClick={() => { setSearch(''); loadForums('') }}>Clear</button>
-
-      <h3>Create forum</h3>
-      <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="name" />
-      <input value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="description" />
-      <button onClick={createForum} disabled={!newName.trim()}>Create</button>
-
-      <h3>All forums ({list.length})</h3>
-      {list.length === 0 && <p>No forums yet.</p>}
-      <ul>
-        {list.map((f) => (
-          <li key={f.id}>
-            <b>{f.name}</b> — {f.description} (posts: {f.postCount}, by {f.createdByName}){' '}
-            <button onClick={() => openForum(f)}>Open</button>
-          </li>
-        ))}
-      </ul>
-
-      {active && (
-        <div>
-          <h3>Posts in "{active.name}"</h3>
-          <input value={postBody} onChange={(e) => setPostBody(e.target.value)} placeholder="post body" />
-          <button onClick={createPost} disabled={!postBody.trim()}>Post</button>
-          {posts.length === 0 && <p>No posts yet.</p>}
-          <ul>
-            {posts.map((p) => (
-              <li key={p.id}>
-                <b>{p.authorName}:</b> {p.body} — {p.likeCount} likes{' '}
-                <button onClick={() => like(p.id)}>{p.liked ? 'Unlike' : 'Like'}</button>
-              </li>
-            ))}
-          </ul>
+    <div className="forum-page">
+      <div className="forum-container">
+        <div className="forum-header">
+          <h1 className="forum-title">Forums</h1>
+          <button className="btn-primary" onClick={() => setShowForm(!showForm)}>
+            + New Forum
+          </button>
         </div>
-      )}
+
+        {error && <p className="forum-empty" style={{ color: '#ff6b6b' }}>Error: {error}</p>}
+
+        {showForm && (
+          <div className="forum-form">
+            <h3>Create a Forum</h3>
+            <input
+              className="forum-input"
+              type="text"
+              placeholder="Forum name"
+              value={newForumName}
+              onChange={(e) => setNewForumName(e.target.value)}
+            />
+            <input
+              className="forum-input"
+              type="text"
+              placeholder="Description (optional)"
+              value={newForumDesc}
+              onChange={(e) => setNewForumDesc(e.target.value)}
+            />
+            <button className="btn-primary" onClick={createForum}>
+              Create
+            </button>
+          </div>
+        )}
+
+        <input
+          className="forum-search"
+          type="text"
+          placeholder="Search forums..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        {loading ? (
+          <p className="forum-empty">Loading forums...</p>
+        ) : filteredForums.length === 0 ? (
+          <p className="forum-empty">No forums found.</p>
+        ) : (
+          <div className="forum-list">
+            {filteredForums.map((forum) => (
+              <div
+                key={forum.id}
+                className="forum-card"
+                onClick={() => navigate(`/forum/${forum.id}`)}
+              >
+                <div className="forum-card-info">
+                  <h3>{forum.name}</h3>
+                  <p>{forum.description}</p>
+                </div>
+                <span className="forum-card-meta">{forum.postCount} posts</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

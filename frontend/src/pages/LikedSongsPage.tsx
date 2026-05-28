@@ -1,41 +1,83 @@
 import { useEffect, useState } from 'react'
 import { spotify, ApiError, type Track } from '../lib/api'
+import './LikedSongsPage.css'
 
-// TEMPORARY data-dump page (no CSS). Liked/saved tracks have no range filter.
+// Liked songs via the modular backend (lib/api -> /api/spotify/liked, cookie session).
 export default function LikedSongsPage() {
-  const [items, setItems] = useState<Track[]>([])
-  const [total, setTotal] = useState(0)
-  const [error, setError] = useState<string | null>(null)
+  const [tracks, setTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
     spotify
       .liked(50, 0)
-      .then((r) => {
-        setItems(r.items)
-        setTotal(r.total)
-      })
+      .then((r) => setTracks(r.items))
       .catch((e) =>
         setError(e instanceof ApiError ? `${e.status} ${e.message} (${e.code})` : String(e))
       )
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <p>Loading liked songs...</p>
-  if (error) return <p style={{ color: 'red' }}>Error: {error}</p>
-
   return (
-    <div>
-      <h2>Liked Songs (showing {items.length} of {total})</h2>
-      <ol>
-        {items.map((t) => (
-          <li key={t.id}>
-            {t.name} — {t.artists.join(', ')} ({t.album.name})
-            {t.addedAt ? ` · added ${new Date(t.addedAt).toLocaleDateString()}` : ''}
-          </li>
-        ))}
-      </ol>
+    <div className="liked-page">
+      <div className="liked-header">
+        <h1 className="liked-title">Liked songs</h1>
+        {!loading && !error && <p className="liked-subtitle">{tracks.length} songs</p>}
+      </div>
+
+      {error && <p style={{ color: '#ff6b6b' }}>Error: {error}</p>}
+
+      {loading ? (
+        <div className="skeleton-list">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="skeleton-row">
+              <div className="skeleton-box" style={{ height: '16px', animationDelay: `${i * 0.05}s` }} />
+              <div
+                className="skeleton-box"
+                style={{ width: '56px', height: '56px', animationDelay: `${i * 0.05}s` }}
+              />
+              <div className="skeleton-info">
+                <div
+                  className="skeleton-box"
+                  style={{ height: '14px', width: '40%', animationDelay: `${i * 0.05}s` }}
+                />
+                <div
+                  className="skeleton-box"
+                  style={{ height: '12px', width: '25%', animationDelay: `${i * 0.05}s` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="liked-list">
+          {tracks.map((track, index) => (
+            <div key={track.id} className="track-row">
+              <span className="track-index">{index + 1}</span>
+              <img
+                src={track.album.images[0]?.url}
+                alt={track.album.name}
+                className="track-album-art"
+              />
+              <div className="track-info">
+                <p className="track-name">{track.name}</p>
+                <p className="track-artist">{track.artists.join(', ')}</p>
+              </div>
+              {track.externalUrl && (
+                <a
+                  className="track-link"
+                  href={track.externalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  ▶
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -1,0 +1,125 @@
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.liked-page {
+  min-height: 100vh;
+  background: #121212;
+  padding: 2rem;
+  font-family: sans-serif;
+  color: #fff;
+}
+
+.liked-header {
+  margin-bottom: 2rem;
+}
+
+.liked-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px 0;
+}
+
+.liked-subtitle {
+  font-size: 14px;
+  color: #aaa;
+  margin: 0;
+}
+
+.liked-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.track-row {
+  display: grid;
+  grid-template-columns: 40px 56px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  background: transparent;
+  transition: background 0.15s;
+  cursor: default;
+}
+
+.track-row:hover {
+  background: #1a1a1a;
+}
+
+.track-index {
+  font-size: 14px;
+  color: #aaa;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.track-album-art {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.track-info {
+  min-width: 0;
+}
+
+.track-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-artist {
+  font-size: 13px;
+  color: #aaa;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-duration {
+  font-size: 13px;
+  color: #aaa;
+  font-variant-numeric: tabular-nums;
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 40px 56px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+}
+
+.skeleton-box {
+  background: #2a2a2a;
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
