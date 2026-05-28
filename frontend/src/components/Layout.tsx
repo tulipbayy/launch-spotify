@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import {
   AppShell,
@@ -7,8 +8,8 @@ import {
   Drawer,
   NavLink,
   Avatar,
-  Text,
   Box,
+  Button,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import './Layout.css'
@@ -29,25 +30,70 @@ const navItems = [
 
 export default function Layout() {
   const [opened, { open, close }] = useDisclosure(false)
+  const [spotifyId, setSpotifyId] = useState<string | null>(null)
+  const [spotifyAvatar, setSpotifyAvatar] = useState<string | null>(null)
   const location = useLocation()
+
+  useEffect(() => {
+    const syncAuth = () => {
+      setSpotifyId(localStorage.getItem('spotifyId'))
+      setSpotifyAvatar(localStorage.getItem('spotifyAvatar'))
+    }
+
+    syncAuth()
+    window.addEventListener('authChange', syncAuth)
+    window.addEventListener('storage', syncAuth)
+    return () => {
+      window.removeEventListener('authChange', syncAuth)
+      window.removeEventListener('storage', syncAuth)
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('spotifyId')
+    localStorage.removeItem('spotifyAvatar')
+    setSpotifyId(null)
+    setSpotifyAvatar(null)
+    window.dispatchEvent(new Event('authChange'))
+    window.location.href = '/profile'
+  }
 
   return (
     <AppShell header={{ height: 60 }} padding="md">
       <AppShell.Header style={{ backgroundColor: TOP_BAR_COLOR, border: 'none' }}>
         <Group h="100%" px="md" justify="space-between" wrap="nowrap">
           <Group style={{ flex: 1 }} justify="flex-start">
-            <Burger opened={false} onClick={open} color="white" aria-label="open sidebar" />
+            <Burger opened={opened} onClick={open} color="white" aria-label="open sidebar" />
           </Group>
 
           <Title order={4} c="white" fw={600} style={{ letterSpacing: '0.5px' }}>
-            Spotify App
+            SpotSocial
           </Title>
 
           <Group style={{ flex: 1 }} justify="flex-end" gap="sm" wrap="nowrap">
-            <Text c="white" size="sm" visibleFrom="xs">
-              username
-            </Text>
-            <Avatar radius="xl" size={32} />
+            {spotifyId ? (
+              <>
+                <Avatar src={spotifyAvatar || undefined} radius="xl" size={32} />
+                <Button
+                  variant="filled"
+                  size="xs"
+                  color="dark"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="filled"
+                size="xs"
+                color="dark"
+                component="a"
+                href="http://localhost:5001/auth/login"
+              >
+                Login with Spotify
+              </Button>
+            )}
           </Group>
         </Group>
       </AppShell.Header>
