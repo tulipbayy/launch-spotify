@@ -15,6 +15,7 @@ const {
   increment,
   arrayUnion,
   arrayRemove,
+  deleteDoc,
 } = require("firebase/firestore");
 const db = require("./firebase");
 const messagesRouter = require("./routes/messages");
@@ -139,7 +140,7 @@ app.get("/auth/callback", async (req, res) => {
           email: me.email,
           topArtists,
           topSongs,
-          isPublic,
+          isPublic: existingData?.isPublic ?? true,
         },
         { merge: true }
       );
@@ -298,74 +299,365 @@ app.get("/api/liked-songs", async (req, res) => {
 });
 
 // --- Forum routes ---
+
 app.get("/api/forums", async (req, res) => {
-  const snapshot = await getDocs(collection(db, "forums"));
-  const forums = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-  res.json(forums);
+  try {
+    const snapshot = await getDocs(collection(db, "forums"));
+    const forums = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    res.json(forums);
+  } catch (err) {
+    console.error("Failed to fetch forums:", err);
+    res.status(500).json({ error: "Failed to fetch forums" });
+  }
 });
 
+// FIX: was using "name" — frontend sends "title"
 app.post("/api/forums", async (req, res) => {
-  const { name, description, createdBy } = req.body;
-  const forum = {
-    name,
-    description,
-    createdBy,
-    postCount: 0,
-    dateCreated: new Date(),
-  };
-  const ref = await addDoc(collection(db, "forums"), forum);
-  res.json({ id: ref.id, ...forum });
+  try {
+    const { title, description, createdBy } = req.body;
+    if (!title) return res.status(400).json({ error: "title is required" });
+    const forum = {
+      title,
+      description: description || "",
+      createdBy: createdBy || "",
+      postCount: 0,
+      createdAt: new Date(),
+    };
+    const ref = await addDoc(collection(db, "forums"), forum);
+    res.json({ id: ref.id, ...forum });
+  } catch (err) {
+    console.error("Failed to create forum:", err);
+    res.status(500).json({ error: "Failed to create forum" });
+  }
 });
 
 app.get("/api/forums/:id/posts", async (req, res) => {
-  const q = query(
-    collection(db, "forumPosts"),
-    where("forumId", "==", req.params.id),
-    orderBy("createdAt", "desc")
-  );
-  const snapshot = await getDocs(q);
-  const posts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-  res.json(posts);
+  try {
+    const q = query(
+      collection(db, "forumPosts"),
+      where("forumId", "==", req.params.id),
+      orderBy("createdAt", "desc")
+    );
+    const snapshot = await getDocs(q);
+    // Normalise: return "likes" as an array (likedBy) so frontend can do .includes()
+    const posts = snapshot.docs.map((d) => {
+      const data = d.data();
+      return {
+        id: d.id,
+        ...data,
+        // frontend expects post.likes to be an array of userIds
+        likes: data.likedBy || [],
+        createdAt: data.createdAt?.toDate?.()?.toISOString() ?? data.createdAt,
+      };
+    });
+    res.json(posts);
+  } catch (err) {
+    console.error("Failed to fetch posts:", err);
+    res.status(500).json({ error: "Failed to fetch posts" });
+  }
 });
 
+// FIX: was using "content" — frontend sends "text"; now also saves musicTag
 app.post("/api/forums/:id/posts", async (req, res) => {
-  const { content, createdBy } = req.body;
-  const post = {
-    forumId: req.params.id,
-    content,
-    createdBy,
-    likes: 0,
-    likedBy: [],
-    createdAt: new Date(),
-  };
-  const ref = await addDoc(collection(db, "forumPosts"), post);
-  await updateDoc(doc(db, "forums", req.params.id), {
-    postCount: increment(1),
-  });
-  res.json({ id: ref.id, ...post });
+  try {
+    const { text, createdBy, musicTag } = req.body;
+    if (!text) return res.status(400).json({ error: "text is required" });
+
+    const post = {
+      forumId: req.params.id,
+      text,
+      createdBy: createdBy || "",
+      likes: 0,
+      likedBy: [],
+      createdAt: new Date(),
+      // only include musicTag if one was provided
+      ...(musicTag ? { musicTag } : {}),
+    };
+
+    const ref = await addDoc(collection(db, "forumPosts"), post);
+    await updateDoc(doc(db, "forums", req.params.id), {
+      postCount: increment(1),
+    });
+
+    // Return with likes as array so frontend stays consistent
+    res.json({ id: ref.id, ...post, likes: [] });
+  } catch (err) {
+    console.error("Failed to create post:", err);
+    res.status(500).json({ error: "Failed to create post" });
+  }
+});
+
+// GET a single forum by id (used by ForumDetailPage header)
+app.get("/api/forums/:id", async (req, res) => {
+  try {
+    const snap = await getDoc(doc(db, "forums", req.params.id));
+    if (!snap.exists())
+      return res.status(404).json({ error: "Forum not found" });
+    res.json({ id: snap.id, ...snap.data() });
+  } catch (err) {
+    console.error("Failed to fetch forum:", err);
+    res.status(500).json({ error: "Failed to fetch forum" });
+  }
 });
 
 app.post("/api/posts/:id/like", async (req, res) => {
-  const { userId } = req.body;
-  const postRef = doc(db, "forumPosts", req.params.id);
-  const postSnap = await getDoc(postRef);
-  const likedBy = postSnap.data().likedBy || [];
-  if (likedBy.includes(userId)) {
-    await updateDoc(postRef, {
-      likes: increment(-1),
-      likedBy: arrayRemove(userId),
-    });
-  } else {
-    await updateDoc(postRef, {
-      likes: increment(1),
-      likedBy: arrayUnion(userId),
-    });
+  try {
+    const { userId } = req.body;
+    const postRef = doc(db, "forumPosts", req.params.id);
+    const postSnap = await getDoc(postRef);
+    if (!postSnap.exists())
+      return res.status(404).json({ error: "Post not found" });
+
+    const likedBy = postSnap.data().likedBy || [];
+    if (likedBy.includes(userId)) {
+      await updateDoc(postRef, {
+        likes: increment(-1),
+        likedBy: arrayRemove(userId),
+      });
+    } else {
+      await updateDoc(postRef, {
+        likes: increment(1),
+        likedBy: arrayUnion(userId),
+      });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Failed to like post:", err);
+    res.status(500).json({ error: "Failed to like post" });
   }
-  res.json({ success: true });
+});
+
+// --- Edit forum ---
+app.patch("/api/forums/:id", async (req, res) => {
+  try {
+    const { title, description } = req.body;
+    if (!title) return res.status(400).json({ error: "title is required" });
+    await updateDoc(doc(db, "forums", req.params.id), {
+      title,
+      description: description ?? "",
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Failed to edit forum:", err);
+    res.status(500).json({ error: "Failed to edit forum" });
+  }
+});
+
+// --- Delete forum (and all its posts) ---
+app.delete("/api/forums/:id", async (req, res) => {
+  try {
+    // Delete all posts in the forum first
+    const q = query(
+      collection(db, "forumPosts"),
+      where("forumId", "==", req.params.id)
+    );
+    const snapshot = await getDocs(q);
+    const deletes = snapshot.docs.map((d) => deleteDoc(d.ref));
+    await Promise.all(deletes);
+    // Delete the forum doc
+    await deleteDoc(doc(db, "forums", req.params.id));
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Failed to delete forum:", err);
+    res.status(500).json({ error: "Failed to delete forum" });
+  }
+});
+
+// --- Edit post ---
+app.patch("/api/posts/:id", async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ error: "text is required" });
+    await updateDoc(doc(db, "forumPosts", req.params.id), { text });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Failed to edit post:", err);
+    res.status(500).json({ error: "Failed to edit post" });
+  }
+});
+
+// --- Delete post ---
+app.delete("/api/posts/:id", async (req, res) => {
+  try {
+    const postSnap = await getDoc(doc(db, "forumPosts", req.params.id));
+    if (!postSnap.exists())
+      return res.status(404).json({ error: "Post not found" });
+    const { forumId } = postSnap.data();
+    await deleteDoc(doc(db, "forumPosts", req.params.id));
+    // Decrement forum post count
+    await updateDoc(doc(db, "forums", forumId), { postCount: increment(-1) });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Failed to delete post:", err);
+    res.status(500).json({ error: "Failed to delete post" });
+  }
+});
+
+// --- Spotify music search (for forum post tagging) ---
+app.get("/api/spotify/search", async (req, res) => {
+  const { q, type = "track,artist,album" } = req.query;
+
+  if (!q || q.trim() === "") {
+    return res.status(400).json({ error: "Query parameter 'q' is required" });
+  }
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ error: "Missing or invalid Authorization header" });
+  }
+
+  const accessToken = authHeader.split(" ")[1];
+
+  try {
+    const params = new URLSearchParams({ q: q.trim(), type, limit: "6" });
+    const response = await fetch(
+      `https://api.spotify.com/v1/search?${params.toString()}`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+
+    if (!response.ok) {
+      const err = await response.json();
+      return res.status(response.status).json({ error: err });
+    }
+
+    const data = await response.json();
+    const results = [];
+
+    if (data.tracks?.items) {
+      data.tracks.items.forEach((t) => {
+        results.push({
+          type: "track",
+          id: t.id,
+          name: t.name,
+          subtitle: t.artists.map((a) => a.name).join(", "),
+          image: t.album.images?.[1]?.url ?? t.album.images?.[0]?.url ?? null,
+          spotifyUrl: t.external_urls.spotify,
+        });
+      });
+    }
+
+    if (data.artists?.items) {
+      data.artists.items.forEach((a) => {
+        results.push({
+          type: "artist",
+          id: a.id,
+          name: a.name,
+          subtitle: "Artist",
+          image: a.images?.[1]?.url ?? a.images?.[0]?.url ?? null,
+          spotifyUrl: a.external_urls.spotify,
+        });
+      });
+    }
+
+    if (data.albums?.items) {
+      data.albums.items.forEach((al) => {
+        results.push({
+          type: "album",
+          id: al.id,
+          name: al.name,
+          subtitle: al.artists.map((a) => a.name).join(", "),
+          image: al.images?.[1]?.url ?? al.images?.[0]?.url ?? null,
+          spotifyUrl: al.external_urls.spotify,
+        });
+      });
+    }
+
+    res.json(results);
+  } catch (err) {
+    console.error("Spotify search error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// --- Batch fetch display names by userId array ---
+// POST /api/profiles/batch  { userIds: ["id1","id2",...] }
+app.post("/api/profiles/batch", async (req, res) => {
+  try {
+    const { userIds } = req.body;
+    if (!Array.isArray(userIds) || userIds.length === 0) return res.json({});
+
+    const unique = [...new Set(userIds)].slice(0, 30); // cap at 30
+    const snaps = await Promise.all(
+      unique.map((uid) => adminDb.collection("profiles").doc(uid).get())
+    );
+
+    const result = {};
+    snaps.forEach((snap, i) => {
+      result[unique[i]] = snap.exists
+        ? snap.data()?.displayName || unique[i]
+        : unique[i];
+    });
+    res.json(result);
+  } catch (err) {
+    console.error("Batch profile fetch error:", err);
+    res.status(500).json({ error: "Failed to fetch profiles" });
+  }
+});
+
+// --- Replies ---
+
+// GET replies for a post
+app.get("/api/posts/:id/replies", async (req, res) => {
+  try {
+    const q = query(
+      collection(db, "forumPosts", req.params.id, "replies"),
+      orderBy("createdAt", "asc")
+    );
+    const snapshot = await getDocs(q);
+    const replies = snapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+      createdAt:
+        d.data().createdAt?.toDate?.()?.toISOString() ?? d.data().createdAt,
+    }));
+    res.json(replies);
+  } catch (err) {
+    console.error("Failed to fetch replies:", err);
+    res.status(500).json({ error: "Failed to fetch replies" });
+  }
+});
+
+// POST a reply to a post
+app.post("/api/posts/:id/replies", async (req, res) => {
+  try {
+    const { text, createdBy } = req.body;
+    if (!text) return res.status(400).json({ error: "text is required" });
+    const reply = {
+      text,
+      createdBy: createdBy || "",
+      createdAt: new Date(),
+    };
+    const ref = await addDoc(
+      collection(db, "forumPosts", req.params.id, "replies"),
+      reply
+    );
+    res.json({
+      id: ref.id,
+      ...reply,
+      createdAt: reply.createdAt.toISOString(),
+    });
+  } catch (err) {
+    console.error("Failed to post reply:", err);
+    res.status(500).json({ error: "Failed to post reply" });
+  }
+});
+
+// DELETE a reply
+app.delete("/api/posts/:postId/replies/:replyId", async (req, res) => {
+  try {
+    await deleteDoc(
+      doc(db, "forumPosts", req.params.postId, "replies", req.params.replyId)
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Failed to delete reply:", err);
+    res.status(500).json({ error: "Failed to delete reply" });
+  }
 });
 
 const usersRouter = require("./routes/users.js");
-
 app.use("/users", usersRouter);
 
 app.listen(port, () => {

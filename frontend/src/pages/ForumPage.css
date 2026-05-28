@@ -1,130 +1,357 @@
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* ── Page shell ─────────────────────────────────────────────── */
+
 .forum-page {
   padding: 2rem;
   font-family: sans-serif;
-  color: #111;
-}
-
-.forum-container {
-  max-width: 800px;
-  margin: 0 auto;
+  color: #1a1a1a;
+  max-width: 780px;
 }
 
 .forum-header {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .forum-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #111;
+  font-size: 32px;
+  font-weight: 800;
+  color: #0d2137;
+  margin: 0 0 4px 0;
+}
+
+.forum-subtitle {
+  font-size: 14px;
+  color: #888;
   margin: 0;
 }
 
-.btn-primary {
-  background: transparent;
-  color: #111;
-  border: 1px solid #bbb;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: border-color 0.15s;
-}
-
-.btn-primary:hover {
-  border-color: #111;
-}
-
-.forum-form {
-  padding: 1.5rem 0;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #ddd;
-}
-
-.forum-form h3 {
-  margin: 0 0 1rem 0;
-  font-size: 15px;
-  font-weight: 500;
-  color: #111;
-}
-
-.forum-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #f5f5f5;
-  color: #111;
-  margin-bottom: 10px;
-  box-sizing: border-box;
-  font-size: 14px;
-}
-
-.forum-input:focus {
-  outline: none;
-  border-color: #aaa;
-}
+/* ── Search ──────────────────────────────────────────────────── */
 
 .forum-search {
   width: 100%;
   padding: 10px 16px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #f5f5f5;
-  color: #111;
+  border: 1.5px solid #e0cfa8;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fffdf7;
+  color: #0d2137;
   margin-bottom: 1.5rem;
   box-sizing: border-box;
-  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
 }
 
 .forum-search:focus {
-  outline: none;
-  border-color: #aaa;
+  border-color: #f5a623;
 }
+
+/* ── Create forum button ─────────────────────────────────────── */
+
+.btn-create-forum {
+  background: #f5a623;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.btn-create-forum:hover {
+  background: #e07b00;
+}
+
+/* ── Forum cards ─────────────────────────────────────────────── */
 
 .forum-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 10px;
 }
 
 .forum-card {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  border-radius: 6px;
-  background: transparent;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #fffdf7;
+  border: 1.5px solid #e8d9b8;
+  border-radius: 14px;
+  padding: 1.1rem 1.4rem;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .forum-card:hover {
-  background: #f0f0f0;
+  border-color: #f5a623;
+  box-shadow: 0 2px 10px rgba(245, 166, 35, 0.12);
 }
 
-.forum-card-info h3 {
-  margin: 0 0 2px 0;
-  font-size: 15px;
-  font-weight: 500;
-  color: #111;
+.forum-card-body {
+  min-width: 0;
 }
 
-.forum-card-info p {
+.forum-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0d2137;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.forum-card-desc {
+  font-size: 13px;
+  color: #888;
   margin: 0;
-  font-size: 13px;
-  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.forum-card-meta {
-  font-size: 13px;
-  color: #666;
+.forum-card-count {
+  font-size: 12px;
+  color: #f5a623;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .forum-empty {
+  color: #888;
   font-size: 14px;
-  color: #666;
+  text-align: center;
+  margin-top: 3rem;
+}
+
+/* ── Modal ───────────────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: #fffdf7;
+  border-radius: 18px;
+  padding: 2rem;
+  padding-bottom: 2.5rem;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  overflow: visible;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0d2137;
+  margin: 0;
+}
+
+.modal-input,
+.modal-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #e0cfa8;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
+  color: #0d2137;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.modal-input:focus,
+.modal-textarea:focus {
+  border-color: #f5a623;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1.5px solid #e0cfa8;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 14px;
+  color: #0d2137;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.btn-cancel:hover {
+  border-color: #f5a623;
+}
+
+.btn-submit {
+  background: #f5a623 !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  min-width: 80px;
+  justify-content: center;
+  border: 2px solid #e07b00;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: #e07b00 !important;
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Skeleton ────────────────────────────────────────────────── */
+
+.forum-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.forum-skeleton-card {
+  background: #fffdf7;
+  border: 1.5px solid #e8d9b8;
+  border-radius: 14px;
+  padding: 1.1rem 1.4rem;
+}
+
+.skeleton-box {
+  background: #e8d9b8;
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+  display: block;
+}
+
+/* ── Forum card right side ───────────────────────────────────── */
+.forum-card-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.forum-card-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* ── Icon buttons (edit / delete) ───────────────────────────── */
+.btn-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: background 0.12s;
+}
+
+.btn-icon--edit {
+  color: #0d2137;
+  background: #ede3ce;
+}
+.btn-icon--edit:hover {
+  background: #e0cfa8;
+}
+
+.btn-icon--delete {
+  color: #c0392b;
+  background: #fdecea;
+}
+.btn-icon--delete:hover {
+  background: #f5c6c2;
+}
+
+/* ── Delete confirm button ───────────────────────────────────── */
+.btn-delete-confirm {
+  background: #c0392b !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.btn-delete-confirm:hover:not(:disabled) {
+  background: #a93226;
+}
+.btn-delete-confirm:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Modal compact variant + body text ──────────────────────── */
+.modal--compact {
+  max-width: 380px;
+}
+
+.modal-body-text {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+}
+
+/* ── Forum creator byline ────────────────────────────────────── */
+.forum-card-creator {
+  font-size: 12px;
+  color: #aaa;
+  margin: 4px 0 0 0;
+}
+
+.forum-card-creator-name {
+  color: #f5a623;
+  font-weight: 600;
 }
