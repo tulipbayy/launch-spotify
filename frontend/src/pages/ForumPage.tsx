@@ -42,7 +42,7 @@ export default function ForumPage() {
   const fetchForums = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:5001/api/forums", {
+      const res = await fetch("http://127.0.0.1:5000/api/forums", {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       const data = await res.json();
@@ -58,7 +58,7 @@ export default function ForumPage() {
     if (!newTitle.trim()) return;
     setCreating(true);
     try {
-      const res = await fetch("http://127.0.0.1:5001/api/forums", {
+      const res = await fetch("http://127.0.0.1:5000/api/forums", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -98,7 +98,7 @@ export default function ForumPage() {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://127.0.0.1:5001/api/forums/${editingForum.id}`,
+        `http://127.0.0.1:5000/api/forums/${editingForum.id}`,
         {
           method: "PATCH",
           headers: {
@@ -132,7 +132,7 @@ export default function ForumPage() {
     setDeleting(true);
     try {
       const res = await fetch(
-        `http://127.0.0.1:5001/api/forums/${deletingId}`,
+        `http://127.0.0.1:5000/api/forums/${deletingId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${getToken()}` },

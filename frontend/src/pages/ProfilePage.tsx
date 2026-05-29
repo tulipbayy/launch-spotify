@@ -78,7 +78,7 @@ export default function ProfilePage() {
       setError("");
       try {
         const response = await fetch(
-          `http://localhost:5001/api/profile?userId=${encodeURIComponent(
+          `http://127.0.0.1:5000/api/profile?userId=${encodeURIComponent(
             userId
           )}`
         );
@@ -133,7 +133,7 @@ export default function ProfilePage() {
   async function updateProfile(changes: Record<string, any>) {
     try {
       setProfile((p) => ({ ...p, ...changes }));
-      const res = await fetch("http://localhost:5001/api/profile", {
+      const res = await fetch("http://127.0.0.1:5000/api/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, data: changes }),
@@ -279,7 +279,7 @@ export default function ProfilePage() {
                 ) : (
                   <a
                     className="profile-button"
-                    href="http://localhost:5001/auth/login"
+                    href="http://127.0.0.1:5000/auth/login"
                   >
                     Login with Spotify
                   </a>
