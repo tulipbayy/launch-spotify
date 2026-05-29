@@ -59,7 +59,7 @@ export default function DiscoverPage() {
 
   return (
     <div className="discover-container">
-      <h2>Discover users</h2>
+      <h2><strong>Discover Users</strong></h2>
 
       <div className="featured-section">
         <div

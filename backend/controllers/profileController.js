@@ -4,7 +4,13 @@ const HttpError = require('../utils/httpError');
 
 async function getMine(req, res) {
   const snap = await getById(req.user.id);
-  res.json({ user: toSelfUser(snap) });
+  const user = toSelfUser(snap);
+  res.json({
+    displayName: user.displayName,
+    bio: user.bio,
+    avatar: user.pfp || null,
+    isPublic: !user.isPrivate,
+  });
 }
 
 // PATCH /api/profile { displayName?, bio? }

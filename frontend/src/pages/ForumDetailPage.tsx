@@ -109,7 +109,7 @@ export default function ForumDetailPage() {
       const missing = ids.filter((id) => id && !displayNames[id]);
       if (missing.length === 0) return;
       try {
-        const res = await fetch("http://127.0.0.1:5000/api/profiles/batch", {
+        const res = await fetch("/api/profiles/batch", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -140,10 +140,10 @@ export default function ForumDetailPage() {
       const token = getToken();
       try {
         const [forumRes, postsRes] = await Promise.all([
-          fetch(`http://127.0.0.1:5000/api/forums/${id}`, {
+          fetch(`/api/forums/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch(`http://127.0.0.1:5000/api/forums/${id}/posts`, {
+          fetch(`/api/forums/${id}/posts`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -173,7 +173,7 @@ export default function ForumDetailPage() {
 
         if (ids.length > 0) {
           const namesRes = await fetch(
-            "http://127.0.0.1:5000/api/profiles/batch",
+            "/api/profiles/batch",
             {
               method: "POST",
               headers: {
@@ -224,7 +224,7 @@ export default function ForumDetailPage() {
     setTagLoading(true);
     try {
       const res = await fetch(
-        `http://127.0.0.1:5000/api/spotify/search?q=${encodeURIComponent(
+        `/api/spotify/search?q=${encodeURIComponent(
           query
         )}&type=track,artist,album`,
         { headers: { Authorization: `Bearer ${getToken()}` } }
@@ -266,7 +266,7 @@ export default function ForumDetailPage() {
         createdBy: userId,
       };
       if (selectedTag) body.musicTag = selectedTag;
-      const res = await fetch(`http://127.0.0.1:5000/api/forums/${id}/posts`, {
+      const res = await fetch(`/api/forums/${id}/posts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -304,7 +304,7 @@ export default function ForumDetailPage() {
     setEditSaving(true);
     try {
       const res = await fetch(
-        `http://127.0.0.1:5000/api/posts/${editingPost.id}`,
+        `/api/posts/${editingPost.id}`,
         {
           method: "PATCH",
           headers: {
@@ -331,7 +331,7 @@ export default function ForumDetailPage() {
     setDeletingPost(true);
     try {
       const res = await fetch(
-        `http://127.0.0.1:5000/api/posts/${deletingPostId}`,
+        `/api/posts/${deletingPostId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${getToken()}` },
@@ -359,7 +359,7 @@ export default function ForumDetailPage() {
         : [...post.likes, userId],
     });
     try {
-      await fetch(`http://127.0.0.1:5000/api/posts/${postId}/like`, {
+      await fetch(`/api/posts/${postId}/like`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -383,7 +383,7 @@ export default function ForumDetailPage() {
     if (!post.repliesLoaded) {
       try {
         const res = await fetch(
-          `http://127.0.0.1:5000/api/posts/${post.id}/replies`,
+          `/api/posts/${post.id}/replies`,
           {
             headers: { Authorization: `Bearer ${getToken()}` },
           }
@@ -414,7 +414,7 @@ export default function ForumDetailPage() {
     updatePost(post.id, { replySubmitting: true });
     try {
       const res = await fetch(
-        `http://127.0.0.1:5000/api/posts/${post.id}/replies`,
+        `/api/posts/${post.id}/replies`,
         {
           method: "POST",
           headers: {
@@ -445,7 +445,7 @@ export default function ForumDetailPage() {
   const handleDeleteReply = async (post: Post, replyId: string) => {
     try {
       const res = await fetch(
-        `http://127.0.0.1:5000/api/posts/${post.id}/replies/${replyId}`,
+        `/api/posts/${post.id}/replies/${replyId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${getToken()}` },

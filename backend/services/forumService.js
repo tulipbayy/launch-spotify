@@ -13,7 +13,7 @@ function shapeForum(doc) {
   const d = doc.data();
   return {
     id: doc.id,
-    name: d.name,
+    title: d.title || d.name,
     description: d.description || '',
     createdBy: d.createdBy,
     createdByName: d.createdByName || '',
@@ -24,15 +24,17 @@ function shapeForum(doc) {
 
 function shapePost(doc, viewerId) {
   const d = doc.data();
+  const likedBy = Array.isArray(d.likedBy) ? d.likedBy : [];
+  const ms = d.createdAt?.toMillis?.();
   return {
     id: doc.id,
     forumId: d.forumId,
-    authorId: d.authorId,
+    createdBy: d.authorId,
     authorName: d.authorName || '',
-    content: d.content,
-    likes: d.likes || 0,
-    liked: Array.isArray(d.likedBy) ? d.likedBy.includes(viewerId) : false,
-    createdAt: d.createdAt?.toMillis?.() || null,
+    text: d.content || d.text || '',
+    likes: likedBy,
+    liked: likedBy.includes(viewerId),
+    createdAt: ms ? new Date(ms).toISOString() : new Date().toISOString(),
   };
 }
 

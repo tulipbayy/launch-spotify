@@ -58,6 +58,8 @@ export default function ProfilePage() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const spotifyId = params.get("spotifyId");
+    const accessToken = params.get("accessToken");
+    if (accessToken) sessionStorage.setItem("accessToken", accessToken);
 
     if (spotifyId) {
       localStorage.setItem("spotifyId", spotifyId);
@@ -78,7 +80,7 @@ export default function ProfilePage() {
       setError("");
       try {
         const response = await fetch(
-          `http://127.0.0.1:5000/api/profile?userId=${encodeURIComponent(
+          `/api/profile?userId=${encodeURIComponent(
             userId
           )}`
         );
@@ -107,6 +109,32 @@ export default function ProfilePage() {
             ? data.topSongs
             : defaultProfile.topSongs,
         });
+
+        try {
+            const [artistsRes, songsRes] = await Promise.all([
+              fetch('/api/spotify/top/artists?range=all_time', { credentials: 'include' }),
+              fetch('/api/spotify/top/tracks?range=all_time', { credentials: 'include' }),
+            ]);
+
+            const artistsData = await artistsRes.json();
+            const songsData = await songsRes.json();
+            const topArtists = (artistsData.items || []).slice(0, 8).map((a: any) => ({
+              name: a.name,
+              subtitle: a.genres?.[0] || 'Artist',
+              image: a.images?.[0]?.url,
+            }));
+
+            const topSongs = (songsData.items || []).slice(0, 8).map((t: any) => ({
+              name: t.name,
+              subtitle: t.artists?.join(', ') || 'Unknown Artist',
+              image: t.album?.images?.[0]?.url,
+            }));
+
+            setProfile(p => ({ ...p, topArtists, topSongs }));
+          } catch (e) {
+            console.warn('Could not load top artists/songs', e);
+          }
+          
         localStorage.setItem(
           "spotifyDisplayName",
           data.displayName || defaultProfile.displayName
@@ -133,10 +161,11 @@ export default function ProfilePage() {
   async function updateProfile(changes: Record<string, any>) {
     try {
       setProfile((p) => ({ ...p, ...changes }));
-      const res = await fetch("http://127.0.0.1:5000/api/profile", {
-        method: "POST",
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, data: changes }),
+        credentials: "include",
+        body: JSON.stringify(changes),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));

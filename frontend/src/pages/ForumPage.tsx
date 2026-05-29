@@ -42,11 +42,12 @@ export default function ForumPage() {
   const fetchForums = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:5000/api/forums", {
+      const res = await fetch("/api/forums", {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       const data = await res.json();
-      setForums(Array.isArray(data) ? data : []);
+      // setForums(Array.isArray(data) ? data : []);
+      setForums(Array.isArray(data) ? data : (data.forums || []));
     } catch (err) {
       console.error("Failed to fetch forums:", err);
     } finally {
@@ -58,14 +59,14 @@ export default function ForumPage() {
     if (!newTitle.trim()) return;
     setCreating(true);
     try {
-      const res = await fetch("http://127.0.0.1:5000/api/forums", {
+      const res = await fetch("/api/forums", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
-          title: newTitle.trim(),
+          name: newTitle.trim(),
           description: newDesc.trim(),
           createdBy: userId,
         }),
@@ -98,7 +99,7 @@ export default function ForumPage() {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://127.0.0.1:5000/api/forums/${editingForum.id}`,
+        `/api/forums/${editingForum.id}`,
         {
           method: "PATCH",
           headers: {
@@ -132,7 +133,7 @@ export default function ForumPage() {
     setDeleting(true);
     try {
       const res = await fetch(
-        `http://127.0.0.1:5000/api/forums/${deletingId}`,
+        `/api/forums/${deletingId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${getToken()}` },

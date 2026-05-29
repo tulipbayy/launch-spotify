@@ -2,18 +2,17 @@ import { useState, useEffect } from "react";
 import "./LikedSongsPage.css";
 
 interface Track {
-  track: {
-    id: string;
+  id: string;
+  name: string;
+  duration_ms: number;
+  artists: string[];
+  album: {
     name: string;
-    duration_ms: number;
-    external_urls: { spotify: string };
-    artists: { name: string }[];
-    album: {
-      name: string;
-      images: { url: string }[];
-    };
+    images: { url: string }[];
   };
-  added_at: string;
+  externalUrl: string | null;
+  previewUrl: string | null;
+  addedAt: string;
 }
 
 export default function LikedSongsPage() {
@@ -31,11 +30,11 @@ export default function LikedSongsPage() {
     if (!accessToken) return;
     const fetchTracks = async () => {
       setLoading(true);
-      const response = await fetch("http://127.0.0.1:5000/api/liked-songs", {
-        headers: { Authorization: `Bearer ${accessToken}` },
+      const response = await fetch("/api/spotify/liked", {
+        credentials: 'include',
       });
       const data = await response.json();
-      setTracks(data);
+      setTracks(data.items || []);
       setLoading(false);
     };
     fetchTracks();
@@ -65,24 +64,24 @@ export default function LikedSongsPage() {
       {selectedTrack && (
         <div className="selected-panel">
           <img
-            src={selectedTrack.track.album.images[0]?.url}
-            alt={selectedTrack.track.album.name}
+            src={selectedTrack.album.images[0]?.url}
+            alt={selectedTrack.album.name}
             className="selected-art"
           />
           <div className="selected-info">
-            <p className="selected-name">{selectedTrack.track.name}</p>
+            <p className="selected-name">{selectedTrack.name}</p>
             <p className="selected-artist">
-              {selectedTrack.track.artists.map((a) => a.name).join(", ")}
+              {selectedTrack.artists.join(", ")}
             </p>
-            <p className="selected-album">{selectedTrack.track.album.name}</p>
+            <p className="selected-album">{selectedTrack.album.name}</p>
             <p className="selected-meta">
-              Added {formatDate(selectedTrack.added_at)} &middot;{" "}
-              {formatDuration(selectedTrack.track.duration_ms)}
+              Added {formatDate(selectedTrack.addedAt)} &middot;{" "}
+              {formatDuration(selectedTrack.duration_ms)}
             </p>
           </div>
           <div className="selected-actions">
             <a
-              href={selectedTrack.track.external_urls.spotify}
+              href={selectedTrack.externalUrl ?? "#"}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-spotify"
@@ -148,30 +147,30 @@ export default function LikedSongsPage() {
         <div className="liked-list">
           {tracks.map((item, index) => (
             <div
-              key={item.track.id}
+              key={item.id}
               className={`track-row ${
-                selectedTrack?.track.id === item.track.id ? "active" : ""
+                selectedTrack?.id === item.id ? "active" : ""
               }`}
               onClick={() =>
                 setSelectedTrack(
-                  selectedTrack?.track.id === item.track.id ? null : item
+                  selectedTrack?.id === item.id ? null : item
                 )
               }
             >
               <span className="track-index">{index + 1}</span>
               <img
-                src={item.track.album.images[0]?.url}
-                alt={item.track.album.name}
+                src={item.album.images[0]?.url}
+                alt={item.album.name}
                 className="track-album-art"
               />
               <div className="track-info">
-                <p className="track-name">{item.track.name}</p>
+                <p className="track-name">{item.name}</p>
                 <p className="track-artist">
-                  {item.track.artists.map((a) => a.name).join(", ")}
+                  {item.artists.join(", ")}
                 </p>
               </div>
               <span className="track-duration">
-                {formatDuration(item.track.duration_ms)}
+                {formatDuration(item.duration_ms)}
               </span>
             </div>
           ))}

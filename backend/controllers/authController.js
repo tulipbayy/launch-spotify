@@ -45,7 +45,8 @@ async function callback(req, res) {
   const userId = await upsertFromSpotify(me, tokens);
 
   res.cookie(COOKIE_NAME, signSession(userId), cookieOptions);
-  res.redirect(`${config.frontendUrl}/`);
+  // res.redirect(`${config.frontendUrl}/`);
+  res.redirect(`${config.frontendUrl}/profile?spotifyId=${userId}&accessToken=${tokens.access_token}`);
 }
 
 // GET /auth/me -> current user's self profile (no tokens).
