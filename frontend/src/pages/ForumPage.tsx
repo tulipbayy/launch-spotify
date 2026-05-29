@@ -19,7 +19,7 @@ export default function ForumPage() {
   useEffect(() => {
     forums
       .list()
-      .then((r) => setList(r.forums))
+      .then((r) => setList(r.forums || []))
       .catch(fail)
       .finally(() => setLoading(false))
   }, [])
@@ -38,7 +38,7 @@ export default function ForumPage() {
   }
 
   const filteredForums = list.filter((f) =>
-    f.name.toLowerCase().includes(search.toLowerCase())
+    (f.name || '').toLowerCase().includes(search.toLowerCase())
   )
 
   return (

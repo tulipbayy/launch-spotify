@@ -49,7 +49,7 @@ export default function Layout() {
         <Group h="100%" px="md" justify="space-between" wrap="nowrap">
           <Group style={{ flex: 1 }} justify="flex-start">
             <Burger
-              opened={opened}
+              opened={false}
               onClick={toggle}
               color="white"
               aria-label="open sidebar"
