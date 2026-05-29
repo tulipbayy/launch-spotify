@@ -134,7 +134,7 @@ frontend/
 ├── package.json
 └── vite.config.ts        # Vite configuration and backend API proxying
 ```
-### Backend(`/backend`)
+### Backend (`/backend`)
 ```
 backend/
 ├── config/               # Environment variables and configuration (env.js)
