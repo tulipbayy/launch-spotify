@@ -2,7 +2,8 @@
 
 ## Project Description
 
-Spotsocial is a full-stack social music web application built using React, Express, Firebase, and Spotify API. The app is designed to extend the Spotify listening experience by allowing users to share and view other user’s music interests and connect through messaging and discussion forums.
+SpotSocial is a full-stack social music web application built using React, Express, Firebase, and Spotify API. The app is designed to extend the Spotify listening experience by allowing users to share and view other user’s music interests and connect through messaging and discussion forums.
+
 Users can:
 
 - View their top artists and songs
