@@ -64,7 +64,7 @@ SPOTIFY_CLIENT_ID=your_client_id
 
 SPOTIFY_CLIENT_SECRET=your_client_secret
 
-SPOTIFY_REDIRECT_URI=http://127.0.0.1:5001/auth/callback
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:5000/auth/callback
 
 PORT=5000
 
